@@ -1,4 +1,5 @@
 import Anthropic from '@anthropic-ai/sdk';
+import { GoogleGenerativeAI } from '@google/generative-ai';
 import { NextRequest, NextResponse } from 'next/server';
 
 const SYSTEM_PROMPT = `You are Aura, an intelligent spatial assistant that visualizes information as nodes on an infinite dark canvas.
@@ -32,7 +33,40 @@ Example response:
 [UI_COMMAND:{"type":"pan_camera","target_id":"weather_sf"}]
 Current conditions in San Francisco: 62 degrees, foggy as usual. Humidity at 78 percent.`;
 
-const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
+type Message = { role: string; content: string };
+
+async function callAnthropic(messages: Message[]): Promise<string> {
+  const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
+  const response = await client.messages.create({
+    model: process.env.CLAUDE_MODEL ?? 'claude-opus-4-8',
+    max_tokens: 2048,
+    system: SYSTEM_PROMPT,
+    messages: messages.map(m => ({
+      role: m.role as 'user' | 'assistant',
+      content: m.content,
+    })),
+  });
+  return response.content[0]?.type === 'text' ? response.content[0].text : '';
+}
+
+async function callGemini(messages: Message[]): Promise<string> {
+  const genAI = new GoogleGenerativeAI(process.env.GOOGLE_API_KEY!);
+  const model = genAI.getGenerativeModel({
+    model: process.env.GEMINI_MODEL ?? 'gemini-2.0-flash',
+    systemInstruction: SYSTEM_PROMPT,
+  });
+
+  // Convert message history — Gemini uses 'model' instead of 'assistant'
+  const history = messages.slice(0, -1).map(m => ({
+    role: m.role === 'assistant' ? 'model' : 'user',
+    parts: [{ text: m.content }],
+  }));
+
+  const chat = model.startChat({ history });
+  const lastMessage = messages[messages.length - 1];
+  const result = await chat.sendMessage(lastMessage.content);
+  return result.response.text();
+}
 
 export async function POST(request: NextRequest) {
   try {
@@ -42,18 +76,20 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Invalid messages' }, { status: 400 });
     }
 
-    const response = await client.messages.create({
-      model: process.env.CLAUDE_MODEL ?? 'claude-opus-4-8',
-      max_tokens: 2048,
-      system: SYSTEM_PROMPT,
-      messages: messages.map((m: { role: string; content: string }) => ({
-        role: m.role as 'user' | 'assistant',
-        content: m.content,
-      })),
-    });
+    const hasAnthropic = !!process.env.ANTHROPIC_API_KEY;
+    const hasGoogle = !!process.env.GOOGLE_API_KEY;
 
-    const text =
-      response.content[0]?.type === 'text' ? response.content[0].text : '';
+    if (!hasAnthropic && !hasGoogle) {
+      return NextResponse.json(
+        { error: 'No API key configured. Set ANTHROPIC_API_KEY or GOOGLE_API_KEY.' },
+        { status: 500 }
+      );
+    }
+
+    // Prefer Anthropic when both are set; fall back to Google
+    const text = hasAnthropic
+      ? await callAnthropic(messages)
+      : await callGemini(messages);
 
     return NextResponse.json({ text });
   } catch (err) {
