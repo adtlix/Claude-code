@@ -1,0 +1,38 @@
+export const T = {
+  color: {
+    bg:          '#000000',
+    surface:     '#070707',
+    surface2:    '#0d0d0d',
+    surface3:    '#121212',
+    border:      'rgba(0,255,65,0.07)',
+    borderMid:   'rgba(0,255,65,0.14)',
+    borderBright:'rgba(0,255,65,0.35)',
+    accent:      '#00FF41',
+    accentDim:   'rgba(0,255,65,0.5)',
+    text:        '#c8c8c8',
+    textMuted:   '#4a4a4a',
+    textBright:  '#ffffff',
+    error:       '#FF4444',
+    warning:     '#FFB800',
+    info:        '#4499FF',
+    success:     '#00FF41',
+  },
+  font: {
+    mono:    "'JetBrains Mono', 'Courier New', monospace",
+    ui:      "'Inter', system-ui, sans-serif",
+  },
+  glow: {
+    sm:    '0 0 8px rgba(0,255,65,0.25)',
+    md:    '0 0 16px rgba(0,255,65,0.35)',
+    lg:    '0 0 32px rgba(0,255,65,0.45)',
+    text:  '0 0 12px rgba(0,255,65,0.8), 0 0 24px rgba(0,255,65,0.4)',
+  },
+  radius: {
+    sm: '6px',
+    md: '10px',
+    lg: '14px',
+    xl: '20px',
+  },
+  bloom: { threshold: 0.15, strength: 1.2, smoothing: 0.9 },
+  camera: { fov: 60, near: 0.1, far: 500 },
+} as const
