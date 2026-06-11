@@ -2,11 +2,11 @@ import { useEffect, useCallback } from 'react'
 import { useOSStore, ActivityEntry } from '../store'
 
 const TYPE_COLORS: Record<ActivityEntry['type'], string> = {
-  deploy: '#00FF41',
-  commit: '#4499FF',
-  test:   '#00FF41',
+  deploy: '#00F5FF',
+  commit: '#8B5CF6',
+  test:   '#00F5FF',
   build:  '#FFB800',
-  pr:     '#FF88CC',
+  pr:     '#F0ABFC',
   alert:  '#FF4444',
 }
 
@@ -18,11 +18,11 @@ function ago(ts: number): string {
 }
 
 const FAKE_EVENTS: Omit<ActivityEntry, 'id' | 'ts'>[] = [
-  { type: 'commit', message: 'commit:pushed', detail: 'refactor/scene-graph' },
-  { type: 'build',  message: 'build:started', detail: 'ci/cd pipeline' },
-  { type: 'test',   message: 'tests:running', detail: '98 tests queued' },
-  { type: 'deploy', message: 'deploy:queued', detail: 'staging → preview' },
-  { type: 'pr',     message: 'pr:reviewed',   detail: 'feature/widgets #151' },
+  { type: 'commit', message: 'commit:pushed',  detail: 'refactor/scene-graph' },
+  { type: 'build',  message: 'build:started',  detail: 'ci/cd pipeline' },
+  { type: 'test',   message: 'tests:running',  detail: '98 tests queued' },
+  { type: 'deploy', message: 'deploy:queued',  detail: 'staging → preview' },
+  { type: 'pr',     message: 'pr:reviewed',    detail: 'feature/widgets #151' },
 ]
 
 export default function ActivityWidget() {
@@ -38,10 +38,7 @@ export default function ActivityWidget() {
     const max = 14000
     let timer: ReturnType<typeof setTimeout>
     const schedule = () => {
-      timer = setTimeout(() => {
-        injectEvent()
-        schedule()
-      }, min + Math.random() * (max - min))
+      timer = setTimeout(() => { injectEvent(); schedule() }, min + Math.random() * (max - min))
     }
     schedule()
     return () => clearTimeout(timer)
@@ -51,10 +48,13 @@ export default function ActivityWidget() {
     <div className="widget widget-activity">
       <div className="widget-header">
         <span className="widget-title">ACTIVITY</span>
-        <span style={{ fontSize: 9, color: 'var(--accent)', letterSpacing: '0.1em' }}>
-          LIVE
-        </span>
-        <div style={{ width: 5, height: 5, borderRadius: '50%', background: 'var(--accent)', boxShadow: '0 0 6px rgba(0,255,65,0.8)', animation: 'pulse 1.5s ease-in-out infinite' }} />
+        <span style={{ fontSize: 9, color: 'var(--accent)', letterSpacing: '0.1em' }}>LIVE</span>
+        <div style={{
+          width: 5, height: 5, borderRadius: '50%',
+          background: 'var(--accent)',
+          boxShadow: '0 0 8px rgba(0,245,255,0.9)',
+          animation: 'pulse 1.5s ease-in-out infinite',
+        }} />
         <span className="widget-icon">⬦</span>
       </div>
       <div className="widget-body" style={{ padding: '0 14px' }}>

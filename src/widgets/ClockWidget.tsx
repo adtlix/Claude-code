@@ -48,7 +48,9 @@ export default function ClockWidget() {
           </div>
           <div className="clock-stat">
             <div className="clock-stat-label">UNIX TIME</div>
-            <div className="clock-stat-value" style={{ fontSize: 10 }}>{Math.floor(Date.now() / 1000)}</div>
+            <div className="clock-stat-value" style={{ fontSize: 10, letterSpacing: '-0.02em' }}>
+              {Math.floor(Date.now() / 1000)}
+            </div>
           </div>
         </div>
       </div>

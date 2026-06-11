@@ -1,69 +1,89 @@
-import { useEffect } from 'react'
+import { useEffect, useRef } from 'react'
 import { useOSStore } from '../store'
 
-interface MetricProps {
-  name: string
-  value: number
-  history: number[]
-  unit?: string
-}
-
-function getColor(v: number): string {
+function getColor(v: number, base: string): string {
   if (v > 80) return '#FF4444'
   if (v > 60) return '#FFB800'
-  return '#00FF41'
+  return base
 }
 
-function Metric({ name, value, history, unit = '%' }: MetricProps) {
-  const color = getColor(value)
-  const max = Math.max(...history, 1)
+interface RingProps {
+  name: string
+  value: number
+  base: string
+  size?: number
+}
+
+function RingMetric({ name, value, base, size = 62 }: RingProps) {
+  const color = getColor(value, base)
+  const r = (size / 2) - 7
+  const circ = 2 * Math.PI * r
+  const filled = (Math.min(value, 100) / 100) * circ
+  const cx = size / 2
+  const cy = size / 2
 
   return (
-    <div className="sys-metric">
-      <div className="sys-metric-header">
-        <span className="sys-metric-name">{name}</span>
-        <span className="sys-metric-val" style={{ color }}>
-          {Math.round(value)}{unit}
-        </span>
-      </div>
-      <div className="sys-bar">
-        <div
-          className="sys-bar-fill"
+    <div className="ring-metric">
+      <svg className="ring-svg" width={size} height={size} viewBox={`0 0 ${size} ${size}`}>
+        {/* Track */}
+        <circle
+          cx={cx} cy={cy} r={r}
+          fill="none"
+          stroke="rgba(255,255,255,0.05)"
+          strokeWidth="4"
+        />
+        {/* Progress arc */}
+        <circle
+          cx={cx} cy={cy} r={r}
+          fill="none"
+          stroke={color}
+          strokeWidth="4"
+          strokeDasharray={`${filled} ${circ}`}
+          strokeDashoffset={circ * 0.25}
+          strokeLinecap="round"
           style={{
-            width: `${value}%`,
-            background: `linear-gradient(90deg, ${color}44, ${color})`,
-            boxShadow: `0 0 6px ${color}66`,
+            filter: `drop-shadow(0 0 4px ${color})`,
+            transition: 'stroke-dasharray 0.8s ease',
+            transformOrigin: '50% 50%',
           }}
         />
-      </div>
-      <div className="sys-mini-chart">
-        {history.map((v, i) => (
-          <div
-            key={i}
-            className="sys-mini-bar"
-            style={{
-              height: `${(v / max) * 100}%`,
-              background: i === history.length - 1 ? color : `${color}44`,
-            }}
-          />
-        ))}
-      </div>
+        {/* Center text */}
+        <text
+          x={cx} y={cy + 1}
+          textAnchor="middle" dominantBaseline="middle"
+          fontSize="10" fontFamily="'JetBrains Mono', monospace"
+          fontWeight="600"
+          fill={color}
+          style={{ filter: `drop-shadow(0 0 3px ${color})` }}
+        >
+          {Math.round(value)}
+        </text>
+      </svg>
+      <div className="ring-label">{name}</div>
     </div>
   )
 }
 
 export default function SystemWidget() {
   const { cpuHistory, memHistory, netHistory, tickStats } = useOSStore()
+  const gpuRef = useRef(72)
 
   useEffect(() => {
     const id = setInterval(tickStats, 1200)
     return () => clearInterval(id)
   }, [tickStats])
 
+  useEffect(() => {
+    const id = setInterval(() => {
+      gpuRef.current = 60 + Math.sin(Date.now() / 4000) * 18
+    }, 1200)
+    return () => clearInterval(id)
+  }, [])
+
   const cpu = cpuHistory.at(-1) ?? 0
   const mem = memHistory.at(-1) ?? 0
   const net = netHistory.at(-1) ?? 0
-  const gpu = 72 + Math.sin(Date.now() / 4000) * 12
+  const gpu = gpuRef.current
 
   return (
     <div className="widget widget-system">
@@ -72,35 +92,23 @@ export default function SystemWidget() {
         <span className="widget-icon">◎</span>
       </div>
       <div className="widget-body">
-        <div className="sys-row">
-          <Metric name="CPU" value={cpu} history={cpuHistory} />
-          <Metric name="MEM" value={mem} history={memHistory} />
-          <Metric name="NET" value={net} history={netHistory} />
-          <Metric name="GPU" value={gpu} history={memHistory.map((v) => v * 0.9)} />
+        <div className="sys-rings-grid">
+          <RingMetric name="CPU" value={cpu} base="var(--accent)" />
+          <RingMetric name="MEM" value={mem} base="var(--violet)" />
+          <RingMetric name="NET" value={net} base="var(--pink)" />
+          <RingMetric name="GPU" value={gpu} base="var(--amber)" />
         </div>
 
-        <div style={{
-          marginTop: 14,
-          paddingTop: 12,
-          borderTop: '1px solid var(--border)',
-          display: 'grid',
-          gridTemplateColumns: '1fr 1fr',
-          gap: 6,
-        }}>
+        <div className="sys-info-grid">
           {[
             { k: 'PROCESSES', v: '312' },
-            { k: 'THREADS', v: '1,428' },
-            { k: 'HEAP', v: '142 MB' },
-            { k: 'FPS', v: '60' },
+            { k: 'THREADS',   v: '1,428' },
+            { k: 'HEAP',      v: '142 MB' },
+            { k: 'FPS',       v: '60' },
           ].map(({ k, v }) => (
-            <div key={k} style={{
-              background: 'rgba(0,255,65,0.02)',
-              border: '1px solid var(--border)',
-              borderRadius: 5,
-              padding: '5px 8px',
-            }}>
-              <div style={{ fontSize: 8, letterSpacing: '0.12em', color: 'var(--text-muted)', marginBottom: 2 }}>{k}</div>
-              <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-bright)' }}>{v}</div>
+            <div key={k} className="sys-info-cell">
+              <div className="sys-info-key">{k}</div>
+              <div className="sys-info-val">{v}</div>
             </div>
           ))}
         </div>

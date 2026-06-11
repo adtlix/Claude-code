@@ -1,48 +1,38 @@
-import { useRef, useMemo } from 'react'
+import { useMemo, useRef } from 'react'
 import { useFrame } from '@react-three/fiber'
 import { ShaderMaterial } from 'three'
 
-const vertexShader = /* glsl */`
-varying vec2 vUv;
-void main() {
-  vUv = uv;
-  gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
-}
-`
+const vert = /* glsl */`varying vec2 vUv; void main(){ vUv=uv; gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.); }`
 
-const fragmentShader = /* glsl */`
+const frag = /* glsl */`
 uniform float uTime;
 varying vec2 vUv;
 
-float grid(vec2 uv, float res) {
-  vec2 g = abs(fract(uv * res - 0.5) - 0.5) / fwidth(uv * res);
-  return 1.0 - min(min(g.x, g.y), 1.0);
+float grid(vec2 uv, float res){
+  vec2 g=abs(fract(uv*res-.5)-.5)/fwidth(uv*res);
+  return 1.-min(min(g.x,g.y),1.);
 }
 
-void main() {
-  vec2 uv = vUv - 0.5;
-  float dist = length(uv);
-
-  // Two grid scales
-  float g1 = grid(vUv, 20.0) * 0.5;
-  float g2 = grid(vUv, 4.0);
-  float g = max(g1, g2);
-
-  // Fade from center + perspective
-  float fade = 1.0 - smoothstep(0.0, 0.5, dist);
-  float edgeFade = 1.0 - smoothstep(0.3, 0.5, dist);
-
-  // Slow pulse sweep
-  float sweep = sin(uv.x * 6.0 - uTime * 0.4) * 0.5 + 0.5;
-  float highlight = g2 * sweep * 0.3;
-
-  float alpha = (g * fade + highlight) * edgeFade;
-  gl_FragColor = vec4(0.0, 1.0, 0.255, alpha * 0.4);
+void main(){
+  vec2 uv=vUv-.5;
+  float dist=length(uv);
+  float g1=grid(vUv,20.)*.4;
+  float g2=grid(vUv,4.);
+  float g=max(g1,g2);
+  float fade=(1.-smoothstep(.0,.5,dist))*(1.-smoothstep(.3,.5,dist));
+  // Cyan/violet sweep
+  float sweepCyan   = g2*sin(uv.x*5. - uTime*.35)*.5+.5;
+  float sweepViolet = g2*sin(uv.y*4. + uTime*.25)*.5+.5;
+  float alpha = (g*fade)*0.35;
+  vec3 cyan   = vec3(0.,.957,1.);
+  vec3 violet = vec3(.545,.361,.965);
+  vec3 col = mix(cyan, violet, sweepViolet*.4);
+  gl_FragColor = vec4(col, alpha + sweepCyan*.06*fade);
 }
 `
 
 export default function GridPlane() {
-  const matRef = useRef<ShaderMaterial>(null)
+  const matRef  = useRef<ShaderMaterial>(null)
   const uniforms = useMemo(() => ({ uTime: { value: 0 } }), [])
 
   useFrame(({ clock }) => {
@@ -54,11 +44,10 @@ export default function GridPlane() {
       <planeGeometry args={[60, 60, 1, 1]} />
       <shaderMaterial
         ref={matRef}
-        vertexShader={vertexShader}
-        fragmentShader={fragmentShader}
+        vertexShader={vert}
+        fragmentShader={frag}
         uniforms={uniforms}
-        transparent
-        depthWrite={false}
+        transparent depthWrite={false}
       />
     </mesh>
   )
