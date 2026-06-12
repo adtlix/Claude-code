@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import { devtools } from 'zustand/middleware';
+import { useShallow } from 'zustand/react/shallow';
 import { createTaskSlice, type TaskSlice } from './slices/taskSlice';
 import { createHistorySlice, type HistorySlice } from './slices/historySlice';
 import { createUISlice, type UISlice } from './slices/uiSlice';
@@ -25,7 +26,9 @@ export const useTask = (id: string): Task | undefined =>
   useAppStore((s) => s.tasks[id]);
 
 export const useDayTasks = (dayId: string): Task[] =>
-  useAppStore((s) => {
-    const ids = s.tasksByDay[dayId] ?? [];
-    return ids.map((id) => s.tasks[id]).filter((t): t is Task => t !== undefined);
-  });
+  useAppStore(
+    useShallow((s) => {
+      const ids = s.tasksByDay[dayId] ?? [];
+      return ids.map((id) => s.tasks[id]).filter((t): t is Task => t !== undefined);
+    })
+  );

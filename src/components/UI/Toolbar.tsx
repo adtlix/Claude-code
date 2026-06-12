@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useAppStore } from '../../store/useAppStore';
 import { useWeeklyProgress } from '../../hooks/useWeeklyProgress';
 import { ExportImport } from './ExportImport';
@@ -13,11 +13,11 @@ export function Toolbar() {
   const [deferredPrompt, setDeferredPrompt] = useState<Event | null>(null);
 
   // PWA install prompt
-  useState(() => {
+  useEffect(() => {
     const handler = (e: Event) => { e.preventDefault(); setDeferredPrompt(e); };
     window.addEventListener('beforeinstallprompt', handler);
     return () => window.removeEventListener('beforeinstallprompt', handler);
-  });
+  }, []);
 
   const installPWA = () => {
     if (!deferredPrompt) return;
