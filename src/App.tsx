@@ -135,7 +135,7 @@ export default function App() {
       >
         <DndBridge />
 
-        <div className="relative w-full h-full overflow-hidden">
+        <div className="relative w-full h-screen overflow-hidden">
           {/* 3D Scene (base layer) */}
           <PlannerScene
             progress={progress}
