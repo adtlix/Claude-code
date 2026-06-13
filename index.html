@@ -1,19 +1,2238 @@
-<!doctype html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' fill='%23000'/><circle cx='16' cy='16' r='8' fill='none' stroke='%2300FF41' stroke-width='2'/><circle cx='16' cy='16' r='3' fill='%2300FF41'/></svg>" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Personal OS</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet" />
-    <script type="module" crossorigin src="/Claude-code/assets/index-Bo6R3_tz.js"></script>
-    <link rel="modulepreload" crossorigin href="/Claude-code/assets/three-qNf-z8bw.js">
-    <link rel="modulepreload" crossorigin href="/Claude-code/assets/r3f-DMn4NGFO.js">
-    <link rel="stylesheet" crossorigin href="/Claude-code/assets/index-G1IeUJWq.css">
-  </head>
-  <body>
-    <div id="root"></div>
-  </body>
+<!DOCTYPE html>
+<html class="light" lang="de">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>GodMode Planner – Liquid Glass Edition</title>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script type="module">
+  import * as WebLLM from 'https://esm.run/@mlc-ai/web-llm';
+  window._WebLLM = WebLLM;
+</script>
+<script id="tailwind-config">
+tailwind.config = {
+  darkMode: "class",
+  theme: {
+    extend: {
+      colors: {
+        "primary-fixed": "#e2e2e2", "on-surface": "#1a1c1d", "on-tertiary": "#ffffff",
+        "on-secondary-container": "#fefcff", "surface-container-lowest": "#ffffff",
+        "error": "#ba1a1a", "surface": "#f9f9fb", "tertiary-fixed-dim": "#c6c6c6",
+        "surface-dim": "#d9dadc", "on-tertiary-fixed-variant": "#474747",
+        "primary-container": "#1b1b1b", "surface-container-low": "#f3f3f5",
+        "on-primary-fixed": "#1b1b1b", "secondary": "#005ab7",
+        "glass-border": "rgba(255, 255, 255, 0.2)", "deep-blur": "rgba(0, 0, 0, 0.05)",
+        "tertiary-fixed": "#e2e2e2", "primary-fixed-dim": "#c6c6c6",
+        "outline-variant": "#cfc4c5", "background": "#f9f9fb",
+        "on-primary-fixed-variant": "#474747", "on-error-container": "#93000a",
+        "surface-container-high": "#e8e8ea", "on-primary": "#ffffff",
+        "on-secondary-fixed": "#001b3f", "on-error": "#ffffff",
+        "inverse-on-surface": "#f0f0f2", "secondary-fixed": "#d7e2ff",
+        "error-container": "#ffdad6", "on-tertiary-fixed": "#1b1b1b",
+        "secondary-container": "#0372e4", "on-tertiary-container": "#848484",
+        "surface-bright": "#f9f9fb", "on-primary-container": "#848484",
+        "tertiary-container": "#1b1b1b", "on-secondary-fixed-variant": "#00458f",
+        "liquid-tint": "rgba(255, 255, 255, 0.7)", "inverse-primary": "#c6c6c6",
+        "inverse-surface": "#2f3132", "secondary-fixed-dim": "#abc7ff",
+        "primary": "#000000", "on-surface-variant": "#4c4546",
+        "surface-tint": "#5e5e5e", "surface-container-highest": "#e2e2e4",
+        "on-background": "#1a1c1d", "surface-variant": "#e2e2e4",
+        "outline": "#7e7576", "tertiary": "#000000", "on-secondary": "#ffffff",
+        "surface-container": "#eeeef0"
+      },
+      borderRadius: {
+        "DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem",
+        "2xl": "1rem", "3xl": "1.5rem", "4xl": "2rem", "full": "9999px"
+      },
+      spacing: {
+        "gutter": "24px", "margin-mobile": "20px", "margin-desktop": "40px",
+        "container-max": "1200px", "unit": "8px"
+      },
+      fontFamily: {
+        "label-md": ["Geist", "sans-serif"], "label-sm": ["Geist", "sans-serif"],
+        "headline-lg-mobile": ["Geist", "sans-serif"], "body-lg": ["Geist", "sans-serif"],
+        "display-xl": ["Geist", "sans-serif"], "body-md": ["Geist", "sans-serif"],
+        "headline-lg": ["Geist", "sans-serif"], "headline-md": ["Geist", "sans-serif"]
+      },
+      fontSize: {
+        "label-md": ["14px", { lineHeight: "1.2", letterSpacing: "0.02em", fontWeight: "500" }],
+        "label-sm": ["12px", { lineHeight: "1.2", letterSpacing: "0.05em", fontWeight: "600" }],
+        "headline-lg-mobile": ["32px", { lineHeight: "1.2", letterSpacing: "-0.02em", fontWeight: "600" }],
+        "body-lg": ["19px", { lineHeight: "1.5", letterSpacing: "0", fontWeight: "400" }],
+        "display-xl": ["80px", { lineHeight: "1.1", letterSpacing: "-0.04em", fontWeight: "700" }],
+        "body-md": ["16px", { lineHeight: "1.5", letterSpacing: "0", fontWeight: "400" }],
+        "headline-lg": ["48px", { lineHeight: "1.2", letterSpacing: "-0.02em", fontWeight: "600" }],
+        "headline-md": ["32px", { lineHeight: "1.3", letterSpacing: "-0.01em", fontWeight: "600" }]
+      }
+    }
+  }
+}
+</script>
+<style>
+body { font-family: 'Geist', sans-serif; }
+.material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+.glass-inner-border { box-shadow: inset 0 0 0 1px rgba(255,255,255,0.4), 0 8px 32px rgba(0,0,0,0.04); }
+
+/* View transitions */
+.view-panel { display: none; }
+.view-panel.active { display: flex; }
+
+/* Voice orb animation */
+@keyframes pulse-ring {
+  0% { transform: scale(1); opacity: 0.8; }
+  100% { transform: scale(1.6); opacity: 0; }
+}
+@keyframes breathe {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.08); }
+}
+.voice-orb-ring {
+  animation: pulse-ring 1.5s ease-out infinite;
+}
+.voice-orb-listening {
+  animation: breathe 1.2s ease-in-out infinite;
+}
+
+/* AI typing dots */
+@keyframes dot-bounce {
+  0%, 80%, 100% { transform: translateY(0); opacity: 0.4; }
+  40% { transform: translateY(-6px); opacity: 1; }
+}
+.dot-1 { animation: dot-bounce 1.4s ease-in-out infinite 0s; }
+.dot-2 { animation: dot-bounce 1.4s ease-in-out infinite 0.2s; }
+.dot-3 { animation: dot-bounce 1.4s ease-in-out infinite 0.4s; }
+
+/* Drag and drop */
+.dragging { opacity: 0.4; transform: rotate(2deg); }
+.drop-target { background: rgba(255,255,255,0.4) !important; border: 2px dashed rgba(0,0,0,0.2); }
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.15); border-radius: 3px; }
+
+/* Modal backdrop */
+.modal-backdrop {
+  position: fixed; inset: 0; z-index: 100;
+  background: rgba(0,0,0,0.2);
+  backdrop-filter: blur(8px);
+  display: flex; align-items: center; justify-content: center;
+  padding: 1rem;
+}
+.modal-backdrop.hidden { display: none; }
+
+/* Voice wave bars */
+@keyframes wave-bar {
+  0%, 100% { height: 6px; }
+  50% { height: 24px; }
+}
+.wave-bar:nth-child(1) { animation: wave-bar 0.8s ease-in-out infinite 0s; }
+.wave-bar:nth-child(2) { animation: wave-bar 0.8s ease-in-out infinite 0.1s; }
+.wave-bar:nth-child(3) { animation: wave-bar 0.8s ease-in-out infinite 0.2s; }
+.wave-bar:nth-child(4) { animation: wave-bar 0.8s ease-in-out infinite 0.3s; }
+.wave-bar:nth-child(5) { animation: wave-bar 0.8s ease-in-out infinite 0.4s; }
+.wave-bars-paused .wave-bar { animation-play-state: paused; }
+
+/* Tag colors */
+.tag-marketing { background: #fff0f3; color: #c0384b; }
+.tag-design { background: #f0f4ff; color: #2b4acb; }
+.tag-development { background: #f0fff4; color: #276749; }
+.tag-sales { background: #fffbf0; color: #b45309; }
+.tag-default { background: #f5f5f5; color: #555; }
+
+/* Sidebar active indicator */
+.nav-btn.active { background: #000; color: #fff; box-shadow: 0 0 20px rgba(255,255,255,0.6); }
+.nav-btn.active span { color: #fff; }
+
+/* Task card drag handle */
+.drag-handle { cursor: grab; opacity: 0; transition: opacity 0.2s; }
+article:hover .drag-handle { opacity: 1; }
+
+/* Priority badge colors */
+.priority-hoch { background: white; color: black; border: 1px solid rgba(0,0,0,0.1); }
+.priority-mittel { background: #f5f5f5; color: #555; border: 1px solid rgba(0,0,0,0.08); }
+.priority-niedrig { background: transparent; color: #888; border: 1px solid rgba(0,0,0,0.08); }
+
+/* Notification toast */
+#toast {
+  position: fixed; bottom: 2rem; left: 50%; transform: translateX(-50%) translateY(100px);
+  background: #000; color: #fff; padding: 0.75rem 1.5rem; border-radius: 2rem;
+  font-size: 14px; z-index: 999; transition: transform 0.4s cubic-bezier(0.34,1.56,0.64,1);
+  white-space: nowrap; pointer-events: none;
+}
+#toast.show { transform: translateX(-50%) translateY(0); }
+
+/* Progress ring for daily summary */
+.summary-ring { transform: rotate(-90deg); }
+</style>
+</head>
+<body class="bg-background text-on-surface antialiased overflow-x-hidden min-h-screen relative">
+
+<!-- WebGL Background -->
+<canvas class="fixed inset-0 z-[-2] w-full h-full pointer-events-none" id="bg-canvas"></canvas>
+<script>
+(function(){
+  const canvas = document.getElementById('bg-canvas');
+  const gl = canvas.getContext('webgl');
+  if (!gl) return;
+  const vs = gl.createShader(gl.VERTEX_SHADER);
+  gl.shaderSource(vs, 'attribute vec2 p; varying vec2 v; void main(){ gl_Position=vec4(p,0,1); v=(p+1.0)/2.0; }');
+  gl.compileShader(vs);
+  const fs = gl.createShader(gl.FRAGMENT_SHADER);
+  gl.shaderSource(fs, `precision highp float; varying vec2 v; uniform float t; void main(){
+    vec2 uv=v; float w=sin(uv.x*2.0+t*0.5)*0.5+0.5; w+=cos(uv.y*3.0-t*0.3)*0.5+0.5; w*=0.5;
+    vec3 c=mix(vec3(0.96,0.96,0.98),vec3(0.92,0.93,0.95),w)+vec3(1.0)*pow(w,4.0)*0.15;
+    gl_FragColor=vec4(c,1.0);}`);
+  gl.compileShader(fs);
+  const prog = gl.createProgram(); gl.attachShader(prog,vs); gl.attachShader(prog,fs); gl.linkProgram(prog); gl.useProgram(prog);
+  const buf=gl.createBuffer(); gl.bindBuffer(gl.ARRAY_BUFFER,buf);
+  gl.bufferData(gl.ARRAY_BUFFER,new Float32Array([-1,-1,1,-1,-1,1,1,1]),gl.STATIC_DRAW);
+  const pl=gl.getAttribLocation(prog,'p'); gl.enableVertexAttribArray(pl); gl.vertexAttribPointer(pl,2,gl.FLOAT,false,0,0);
+  const tl=gl.getUniformLocation(prog,'t');
+  function render(ts){ canvas.width=innerWidth; canvas.height=innerHeight; gl.viewport(0,0,canvas.width,canvas.height); gl.uniform1f(tl,ts*0.001); gl.drawArrays(gl.TRIANGLE_STRIP,0,4); requestAnimationFrame(render); }
+  requestAnimationFrame(render);
+})();
+</script>
+
+<!-- Background Image Layer -->
+<div class="fixed inset-0 z-[-1] bg-cover bg-center bg-no-repeat opacity-60" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuDAGHIKpbzhR8t6zgmZ30qlC2QekPfi714iCPByMu1tAJcB9GzFee7IX6OVAUUWyR6PMFiqPn2ML5e_BG5jqYkUAz4Wlolnbf40D9LuR1PflsgY83PQsDLGRSMhaE53RPNpScssYI192XjYzszgHT1GQGXU5lxg6DWpbOu5r528fMNTCZXrHsGbPdzpCmP1uRSmWDPDHqzumeqNyVEeVRRZ-Kc30G1JwE0hCLX11ypdx_WHyP3yi2Z9ppcuDP5wO22-lICJuzvZWIQ_');"></div>
+
+<!-- Header -->
+<header class="sticky top-0 z-50 w-full flex justify-between items-center px-margin-mobile md:px-margin-desktop py-6 max-w-container-max mx-auto bg-white/10 backdrop-blur-[64px] rounded-b-[3rem] glass-inner-border shadow-[0_0_40px_rgba(255,255,255,0.5)] border-b border-glass-border/20 text-on-surface transition-all duration-500">
+  <div class="flex items-center gap-4">
+    <span class="font-headline-md text-headline-md font-bold tracking-tight text-primary">GodMode Planner</span>
+  </div>
+  <nav class="hidden md:flex items-center gap-8 font-label-md text-label-md">
+    <a class="nav-link text-primary font-bold border-b-2 border-primary pb-1 transition-colors duration-300 hover:bg-on-surface/5 px-2 rounded-t-md" href="#" data-view="home">Planer</a>
+    <a class="nav-link text-on-surface-variant hover:text-on-surface transition-colors duration-300 hover:bg-on-surface/5 px-2 py-1 rounded-md" href="#" data-view="todos">To-Dos</a>
+    <a class="nav-link text-on-surface-variant hover:text-on-surface transition-colors duration-300 hover:bg-on-surface/5 px-2 py-1 rounded-md" href="#" data-view="aichat">KI Chat</a>
+    <a class="nav-link text-on-surface-variant hover:text-on-surface transition-colors duration-300 hover:bg-on-surface/5 px-2 py-1 rounded-md" href="#" data-view="weekly">Wochenplan</a>
+  </nav>
+  <div class="flex items-center gap-4">
+    <!-- Voice AI Button -->
+    <button id="voice-btn" onclick="App.openVoice()" class="flex items-center gap-2 px-4 py-2 rounded-full bg-primary text-on-primary glass-inner-border shadow-[0_0_20px_rgba(0,0,0,0.2)] hover:bg-primary/80 transition-all duration-300 font-label-md">
+      <span class="material-symbols-outlined text-[20px]">mic</span>
+      <span class="hidden md:inline">Sprachassistent</span>
+    </button>
+    <button onclick="App.openVoice()" class="flex items-center gap-2 px-4 py-2 rounded-full bg-white/20 glass-inner-border shadow-[0_0_15px_rgba(255,255,255,0.3)] hover:bg-white/40 transition-colors duration-300 text-primary font-label-md">
+      <span class="material-symbols-outlined text-[20px]">center_focus_strong</span>
+      <span class="hidden md:inline">Fokus</span>
+    </button>
+    <button class="p-2 rounded-full hover:bg-on-surface/5 transition-colors duration-300 scale-95 hover:scale-100 ease-out text-on-surface-variant hover:text-on-surface" title="Benachrichtigungen">
+      <span class="material-symbols-outlined">notifications</span>
+    </button>
+    <button onclick="App.openSettings()" class="p-2 rounded-full hover:bg-on-surface/5 transition-colors duration-300 scale-95 hover:scale-100 ease-out text-on-surface-variant hover:text-on-surface" title="Einstellungen">
+      <span class="material-symbols-outlined">settings</span>
+    </button>
+  </div>
+</header>
+
+<!-- Sidebar -->
+<aside class="hidden md:flex fixed z-40 left-margin-desktop top-1/2 -translate-y-1/2 rounded-full py-8 w-20 flex-col items-center gap-6 h-fit bg-liquid-tint/40 backdrop-blur-[40px] border border-glass-border/30 shadow-[0_0_40px_rgba(255,255,255,0.4)] text-primary font-label-md text-label-md">
+  <div class="flex flex-col items-center gap-4 w-full px-2">
+    <button onclick="App.switchView('home')" data-nav="home" class="nav-btn active bg-primary text-on-primary rounded-xl p-3 flex flex-col items-center gap-1 group scale-90 duration-300 transition-transform shadow-[0_0_20px_rgba(255,255,255,0.6)]">
+      <span class="material-symbols-outlined" style="font-variation-settings:'FILL' 1">home</span>
+    </button>
+    <button onclick="App.switchView('todos')" data-nav="todos" class="nav-btn text-on-surface-variant/70 p-3 flex flex-col items-center gap-1 hover:bg-on-surface/10 rounded-xl transition-all group hover:shadow-[0_0_20px_rgba(255,255,255,0.6)]">
+      <span class="material-symbols-outlined group-hover:text-primary transition-colors">checklist</span>
+    </button>
+    <button onclick="App.switchView('aichat')" data-nav="aichat" class="nav-btn text-on-surface-variant/70 p-3 flex flex-col items-center gap-1 hover:bg-on-surface/10 rounded-xl transition-all group hover:shadow-[0_0_20px_rgba(255,255,255,0.6)]">
+      <span class="material-symbols-outlined group-hover:text-primary transition-colors">smart_toy</span>
+    </button>
+    <button onclick="App.switchView('weekly')" data-nav="weekly" class="nav-btn text-on-surface-variant/70 p-3 flex flex-col items-center gap-1 hover:bg-on-surface/10 rounded-xl transition-all group hover:shadow-[0_0_20px_rgba(255,255,255,0.6)]">
+      <span class="material-symbols-outlined group-hover:text-primary transition-colors">calendar_month</span>
+    </button>
+    <button onclick="App.switchView('aichat')" class="nav-btn text-on-surface-variant/70 p-3 flex flex-col items-center gap-1 hover:bg-on-surface/10 rounded-xl transition-all group hover:shadow-[0_0_20px_rgba(255,255,255,0.6)]">
+      <span class="material-symbols-outlined group-hover:text-primary transition-colors">mail</span>
+    </button>
+  </div>
+  <div class="h-px w-8 bg-glass-border/30 my-2"></div>
+  <div class="flex flex-col items-center gap-4 w-full px-2">
+    <button onclick="App.openSettings()" class="nav-btn text-on-surface-variant/70 p-3 flex flex-col items-center gap-1 hover:bg-on-surface/10 rounded-xl transition-all group hover:shadow-[0_0_20px_rgba(255,255,255,0.6)]">
+      <span class="material-symbols-outlined group-hover:text-primary transition-colors">settings</span>
+    </button>
+    <button onclick="App.openSettings()" class="w-10 h-10 rounded-full overflow-hidden border border-glass-border/30 hover:scale-105 transition-transform mt-2 shadow-[0_0_20px_rgba(255,255,255,0.6)]">
+      <div id="avatar-display" class="w-full h-full bg-surface-variant flex items-center justify-center text-on-surface font-label-sm text-label-sm font-bold">JC</div>
+    </button>
+  </div>
+</aside>
+
+<!-- Main Canvas -->
+<main class="w-full max-w-container-max mx-auto px-margin-mobile md:pl-[140px] md:pr-margin-desktop pt-8 pb-20 md:pb-8">
+
+  <!-- ═══════════════════ HOME VIEW ═══════════════════ -->
+  <div id="view-home" class="view-panel active flex-col gap-10">
+    <!-- Header Section -->
+    <section class="flex flex-col gap-2 md:pb-4">
+      <h1 id="home-title" class="font-headline-lg-mobile md:font-headline-lg text-headline-lg-mobile md:text-headline-lg text-primary">Wochenplanung</h1>
+      <p class="font-body-lg text-body-lg text-on-surface-variant max-w-2xl">Organisiere deine Aufgaben in fließenden, transparenten Spaces. Fokus auf das Wesentliche.</p>
+    </section>
+
+    <!-- Daily Briefing (AI-generated) -->
+    <section id="daily-briefing" class="bg-white/10 backdrop-blur-[64px] rounded-[3rem] p-8 glass-inner-border shadow-[0_0_40px_rgba(255,255,255,0.5)] transition-all duration-500 w-full">
+      <div class="flex items-center justify-between mb-4">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-2xl bg-primary flex items-center justify-center">
+            <span class="material-symbols-outlined text-white text-[20px]">wb_sunny</span>
+          </div>
+          <div>
+            <h2 class="font-headline-md text-primary text-xl tracking-tight">Tages-Briefing</h2>
+            <p id="briefing-date" class="font-label-md text-label-md text-on-surface-variant"></p>
+          </div>
+        </div>
+        <button onclick="App.generateDailySummary()" class="flex items-center gap-2 px-4 py-2 rounded-full bg-white/30 glass-inner-border hover:bg-white/50 transition-colors font-label-md text-label-md text-on-surface-variant hover:text-primary">
+          <span class="material-symbols-outlined text-[18px]">auto_awesome</span>
+          <span class="hidden sm:inline">KI-Zusammenfassung</span>
+        </button>
+      </div>
+      <div id="briefing-content" class="font-body-md text-on-surface-variant leading-relaxed min-h-[60px] flex items-center">
+        <span class="text-on-surface-variant/60 italic">Klicke auf "KI-Zusammenfassung" für Ihren personalisierten Tagesplan.</span>
+      </div>
+    </section>
+
+    <!-- Weekly Goals -->
+    <section id="weekly-goals-section" class="bg-white/10 backdrop-blur-[64px] rounded-[3rem] p-8 glass-inner-border shadow-[0_0_40px_rgba(255,255,255,0.5)] transition-all duration-500 w-full flex flex-col md:flex-row gap-6 md:items-center justify-between">
+      <div class="flex flex-col gap-2 shrink-0">
+        <div class="flex items-center gap-2">
+          <span class="material-symbols-outlined text-primary text-[24px]">crisis_alert</span>
+          <h2 class="font-headline-md text-headline-md text-primary text-2xl tracking-tight">Wochenziele</h2>
+        </div>
+        <p class="font-label-md text-label-md text-on-surface-variant">Ihre wichtigsten Meilensteine.</p>
+        <button onclick="App.addWeeklyGoal()" class="mt-2 flex items-center gap-1 text-on-surface-variant hover:text-primary transition-colors font-label-md text-label-sm">
+          <span class="material-symbols-outlined text-[16px]">add</span> Ziel hinzufügen
+        </button>
+      </div>
+      <div id="goals-container" class="flex flex-col md:flex-row gap-4 flex-1 justify-end flex-wrap"></div>
+    </section>
+
+    <!-- Kanban Board -->
+    <section class="grid grid-cols-1 lg:grid-cols-3 gap-gutter items-start">
+      <!-- Backlog -->
+      <div id="col-backlog" class="flex flex-col gap-6 bg-white/10 backdrop-blur-[64px] rounded-[3rem] p-8 glass-inner-border shadow-[0_0_40px_rgba(255,255,255,0.5)] transition-all duration-500"
+           ondragover="App.onDragOver(event,'backlog')" ondrop="App.onDrop(event,'backlog')" ondragleave="App.onDragLeave(event)">
+        <div class="flex items-center justify-between mb-2">
+          <h2 class="font-headline-md text-headline-md text-primary text-2xl tracking-tight">Backlog</h2>
+          <span id="count-backlog" class="bg-white/20 backdrop-blur-md text-on-surface-variant font-label-sm text-label-sm px-3 py-1 rounded-full border border-white/20">0</span>
+        </div>
+        <div id="cards-backlog" class="flex flex-col gap-4"></div>
+        <button onclick="App.openAddTask('backlog')" class="w-full py-4 rounded-full border border-transparent hover:border-white/40 bg-white/5 hover:bg-white/20 text-on-surface-variant font-label-md text-label-md transition-all duration-300 flex items-center justify-center gap-2 hover:shadow-[0_0_20px_rgba(255,255,255,0.5)]">
+          <span class="material-symbols-outlined">add</span> Aufgabe hinzufügen
+        </button>
+      </div>
+
+      <!-- In Arbeit -->
+      <div id="col-inProgress" class="flex flex-col gap-6 bg-white/10 backdrop-blur-[64px] rounded-[3rem] p-8 glass-inner-border shadow-[0_0_40px_rgba(255,255,255,0.5)] relative overflow-hidden transition-all duration-500"
+           ondragover="App.onDragOver(event,'inProgress')" ondrop="App.onDrop(event,'inProgress')" ondragleave="App.onDragLeave(event)">
+        <div class="absolute inset-0 bg-gradient-to-b from-white/20 to-transparent pointer-events-none"></div>
+        <div class="flex items-center justify-between mb-2 relative z-10">
+          <h2 class="font-headline-md text-headline-md text-primary text-2xl tracking-tight">In Arbeit</h2>
+          <span id="count-inProgress" class="bg-primary text-on-primary font-label-sm text-label-sm px-3 py-1 rounded-full">0</span>
+        </div>
+        <div id="cards-inProgress" class="flex flex-col gap-4 relative z-10"></div>
+        <button onclick="App.openAddTask('inProgress')" class="w-full py-4 rounded-full border border-transparent hover:border-white/40 bg-white/5 hover:bg-white/20 text-on-surface-variant font-label-md text-label-md transition-all duration-300 flex items-center justify-center gap-2 hover:shadow-[0_0_20px_rgba(255,255,255,0.5)] relative z-10">
+          <span class="material-symbols-outlined">add</span> Aufgabe hinzufügen
+        </button>
+      </div>
+
+      <!-- Abgeschlossen -->
+      <div id="col-done" class="flex flex-col gap-6 bg-white/5 backdrop-blur-[64px] rounded-[3rem] p-8 glass-inner-border shadow-[0_0_40px_rgba(255,255,255,0.5)] transition-all duration-500"
+           ondragover="App.onDragOver(event,'done')" ondrop="App.onDrop(event,'done')" ondragleave="App.onDragLeave(event)">
+        <div class="flex items-center justify-between mb-2">
+          <h2 class="font-headline-md text-headline-md text-on-surface-variant text-2xl tracking-tight">Abgeschlossen</h2>
+          <span id="count-done" class="bg-white/10 text-on-surface-variant font-label-sm text-label-sm px-3 py-1 rounded-full">0</span>
+        </div>
+        <div id="cards-done" class="flex flex-col gap-4"></div>
+      </div>
+    </section>
+  </div>
+
+  <!-- ═══════════════════ TODOS VIEW ═══════════════════ -->
+  <div id="view-todos" class="view-panel flex-col gap-8">
+    <section class="flex flex-col gap-2 pb-4">
+      <h1 class="font-headline-lg-mobile md:font-headline-lg text-headline-lg-mobile md:text-headline-lg text-primary">To-Do Liste</h1>
+      <p class="font-body-lg text-body-lg text-on-surface-variant">Ihre täglichen Aufgaben und Erledigungen.</p>
+    </section>
+
+    <!-- Add Todo -->
+    <div class="bg-white/20 backdrop-blur-[64px] rounded-[2rem] p-6 glass-inner-border shadow-[0_0_40px_rgba(255,255,255,0.5)] flex gap-3">
+      <input id="todo-input" type="text" placeholder="Neue Aufgabe hinzufügen..."
+             class="flex-1 bg-white/50 backdrop-blur-md rounded-xl px-4 py-3 glass-inner-border text-body-md font-body-md text-on-surface focus:outline-none focus:ring-2 focus:ring-primary/20 placeholder-on-surface-variant/50"
+             onkeypress="if(event.key==='Enter') App.addTodo()"/>
+      <button onclick="App.addTodo()" class="px-5 py-3 bg-primary text-on-primary rounded-xl font-label-md shadow-[0_0_15px_rgba(0,0,0,0.2)] hover:scale-105 transition-transform duration-300 flex items-center gap-2">
+        <span class="material-symbols-outlined text-[18px]">add</span>
+        <span class="hidden sm:inline">Hinzufügen</span>
+      </button>
+      <button onclick="App.generateTodosFromAI()" class="px-5 py-3 bg-white/30 glass-inner-border rounded-xl font-label-md hover:bg-white/50 transition-colors flex items-center gap-2 text-on-surface-variant">
+        <span class="material-symbols-outlined text-[18px]">auto_awesome</span>
+        <span class="hidden sm:inline">KI-Vorschläge</span>
+      </button>
+    </div>
+
+    <!-- Todo Filters -->
+    <div class="flex gap-3 flex-wrap">
+      <button onclick="App.setTodoFilter('all')" data-filter="all" class="todo-filter-btn px-4 py-2 rounded-full bg-primary text-on-primary font-label-md text-label-md">Alle</button>
+      <button onclick="App.setTodoFilter('open')" data-filter="open" class="todo-filter-btn px-4 py-2 rounded-full bg-white/20 glass-inner-border font-label-md text-label-md text-on-surface-variant hover:bg-white/40 transition-colors">Offen</button>
+      <button onclick="App.setTodoFilter('done')" data-filter="done" class="todo-filter-btn px-4 py-2 rounded-full bg-white/20 glass-inner-border font-label-md text-label-md text-on-surface-variant hover:bg-white/40 transition-colors">Erledigt</button>
+    </div>
+
+    <!-- Todo List -->
+    <div id="todo-list" class="flex flex-col gap-3"></div>
+  </div>
+
+  <!-- ═══════════════════ AI CHAT VIEW ═══════════════════ -->
+  <div id="view-aichat" class="view-panel flex-col gap-8">
+    <section class="flex flex-col gap-2 pb-4">
+      <h1 class="font-headline-lg-mobile md:font-headline-lg text-headline-lg-mobile md:text-headline-lg text-primary">KI-Assistent</h1>
+      <p class="font-body-lg text-body-lg text-on-surface-variant">Ihr persönlicher Planungsassistent. Sprechen Sie direkt mit mir.</p>
+    </section>
+
+    <!-- Chat Window -->
+    <div class="bg-white/10 backdrop-blur-[64px] rounded-[3rem] glass-inner-border shadow-[0_0_40px_rgba(255,255,255,0.5)] flex flex-col" style="height: 60vh;">
+      <div id="chat-messages" class="flex-1 overflow-y-auto p-6 flex flex-col gap-4"></div>
+      <div class="p-4 border-t border-white/20 flex gap-3">
+        <input id="chat-input" type="text" placeholder="Schreiben Sie Ihre Nachricht..."
+               class="flex-1 bg-white/50 backdrop-blur-md rounded-xl px-4 py-3 glass-inner-border text-body-md font-body-md text-on-surface focus:outline-none focus:ring-2 focus:ring-primary/20 placeholder-on-surface-variant/50"
+               onkeypress="if(event.key==='Enter') App.sendChat()"/>
+        <button onclick="App.openVoice()" class="p-3 bg-white/30 glass-inner-border rounded-xl hover:bg-white/50 transition-colors text-on-surface-variant hover:text-primary">
+          <span class="material-symbols-outlined">mic</span>
+        </button>
+        <button onclick="App.sendChat()" class="px-5 py-3 bg-primary text-on-primary rounded-xl font-label-md shadow-[0_0_15px_rgba(0,0,0,0.2)] hover:scale-105 transition-transform duration-300">
+          <span class="material-symbols-outlined text-[18px]">send</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+      <button onclick="App.quickChatAction('summary')" class="bg-white/20 backdrop-blur-md rounded-[2rem] p-4 glass-inner-border hover:bg-white/40 transition-colors text-left flex flex-col gap-2">
+        <span class="material-symbols-outlined text-primary text-[24px]">summarize</span>
+        <span class="font-label-md text-label-md text-on-surface">Tages-Zusammenfassung</span>
+      </button>
+      <button onclick="App.quickChatAction('plan')" class="bg-white/20 backdrop-blur-md rounded-[2rem] p-4 glass-inner-border hover:bg-white/40 transition-colors text-left flex flex-col gap-2">
+        <span class="material-symbols-outlined text-primary text-[24px]">event_note</span>
+        <span class="font-label-md text-label-md text-on-surface">Wochenplan erstellen</span>
+      </button>
+      <button onclick="App.quickChatAction('priority')" class="bg-white/20 backdrop-blur-md rounded-[2rem] p-4 glass-inner-border hover:bg-white/40 transition-colors text-left flex flex-col gap-2">
+        <span class="material-symbols-outlined text-primary text-[24px]">priority_high</span>
+        <span class="font-label-md text-label-md text-on-surface">Prioritäten setzen</span>
+      </button>
+      <button onclick="App.quickChatAction('review')" class="bg-white/20 backdrop-blur-md rounded-[2rem] p-4 glass-inner-border hover:bg-white/40 transition-colors text-left flex flex-col gap-2">
+        <span class="material-symbols-outlined text-primary text-[24px]">insights</span>
+        <span class="font-label-md text-label-md text-on-surface">Produktivitäts-Review</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- ═══════════════════ WEEKLY PLAN VIEW ═══════════════════ -->
+  <div id="view-weekly" class="view-panel flex-col gap-8">
+    <section class="flex flex-col gap-2 pb-4">
+      <h1 class="font-headline-lg-mobile md:font-headline-lg text-headline-lg-mobile md:text-headline-lg text-primary">Wochenplan</h1>
+      <p class="font-body-lg text-body-lg text-on-surface-variant">Ihre Woche auf einen Blick.</p>
+    </section>
+    <div class="flex justify-end gap-3">
+      <button onclick="App.generateWeeklyPlan()" class="flex items-center gap-2 px-5 py-3 bg-primary text-on-primary rounded-xl font-label-md shadow-[0_0_15px_rgba(0,0,0,0.2)] hover:scale-105 transition-transform duration-300">
+        <span class="material-symbols-outlined text-[18px]">auto_awesome</span> KI-Wochenplan erstellen
+      </button>
+    </div>
+    <div id="weekly-grid" class="grid grid-cols-1 md:grid-cols-7 gap-3"></div>
+  </div>
+
+</main>
+
+<!-- Floating Quick Notes -->
+<aside id="quick-notes" class="fixed bottom-6 right-6 md:bottom-10 md:right-10 w-80 bg-white/30 backdrop-blur-[64px] rounded-[2rem] p-6 glass-inner-border shadow-[0_20px_60px_rgba(0,0,0,0.1),0_0_40px_rgba(255,255,255,0.5)] z-40 hidden lg:flex flex-col gap-4 hover:shadow-[0_20px_60px_rgba(0,0,0,0.1),0_0_60px_rgba(255,255,255,0.7)] transition-shadow duration-500">
+  <div class="flex justify-between items-center">
+    <div class="flex items-center gap-2 text-primary">
+      <span class="material-symbols-outlined text-[20px]">edit_note</span>
+      <h3 class="font-headline-md text-xl tracking-tight">Schnellnotizen</h3>
+    </div>
+    <div class="flex gap-2">
+      <button onclick="App.processNoteWithAI()" title="Mit KI verarbeiten" class="text-on-surface-variant hover:text-primary transition-colors bg-white/20 rounded-full p-1">
+        <span class="material-symbols-outlined text-[18px]">auto_awesome</span>
+      </button>
+      <button onclick="document.getElementById('quick-notes').classList.toggle('hidden')" class="text-on-surface-variant hover:text-primary transition-colors bg-white/20 rounded-full p-1">
+        <span class="material-symbols-outlined text-[18px]">close</span>
+      </button>
+    </div>
+  </div>
+  <textarea id="note-textarea" class="w-full bg-white/50 backdrop-blur-md rounded-xl p-4 glass-inner-border resize-none text-body-md font-body-md text-on-surface focus:outline-none focus:ring-2 focus:ring-primary/20 placeholder-on-surface-variant/50" placeholder="Gedanken, Links oder Ideen festhalten..." rows="5"></textarea>
+  <div class="flex justify-between items-center">
+    <span id="note-saved-indicator" class="font-label-sm text-label-sm text-on-surface-variant/60 hidden">✓ Gespeichert</span>
+    <div class="flex gap-2 ml-auto">
+      <button onclick="App.processNoteWithAI()" class="px-3 py-2 bg-white/30 glass-inner-border rounded-xl font-label-md text-label-md text-on-surface-variant hover:bg-white/50 transition-colors flex items-center gap-1">
+        <span class="material-symbols-outlined text-[14px]">auto_awesome</span> KI
+      </button>
+      <button onclick="App.saveNote()" class="px-4 py-2 bg-primary text-on-primary rounded-xl font-label-md shadow-[0_0_15px_rgba(0,0,0,0.2)] hover:scale-105 transition-transform duration-300">Speichern</button>
+    </div>
+  </div>
+</aside>
+
+<!-- Notes toggle button (mobile + when hidden) -->
+<button onclick="document.getElementById('quick-notes').classList.toggle('hidden')" class="fixed bottom-6 right-6 z-40 lg:hidden w-14 h-14 bg-primary text-on-primary rounded-full shadow-[0_0_30px_rgba(0,0,0,0.2)] flex items-center justify-center hover:scale-110 transition-transform">
+  <span class="material-symbols-outlined">edit_note</span>
+</button>
+
+<!-- ═══════════════════ VOICE AI MODAL ═══════════════════ -->
+<div id="voice-modal" class="modal-backdrop hidden">
+  <div class="bg-white/20 backdrop-blur-[80px] rounded-[3rem] glass-inner-border shadow-[0_40px_100px_rgba(0,0,0,0.15)] w-full max-w-lg flex flex-col items-center gap-8 p-10">
+    <!-- Header -->
+    <div class="flex justify-between items-center w-full">
+      <div>
+        <h2 class="font-headline-md text-primary text-2xl tracking-tight">GodMode Sprachassistent</h2>
+        <p id="voice-status-text" class="font-label-md text-label-md text-on-surface-variant mt-1">Sagen Sie "Hallo" um zu beginnen</p>
+      </div>
+      <button onclick="App.closeVoice()" class="p-2 rounded-full hover:bg-on-surface/10 transition-colors text-on-surface-variant">
+        <span class="material-symbols-outlined">close</span>
+      </button>
+    </div>
+
+    <!-- Orb Visualization -->
+    <div class="relative flex items-center justify-center w-40 h-40">
+      <div id="voice-ring-1" class="absolute w-40 h-40 rounded-full border border-primary/20 bg-primary/5 voice-orb-ring" style="animation-delay: 0s;"></div>
+      <div id="voice-ring-2" class="absolute w-32 h-32 rounded-full border border-primary/20 bg-primary/5 voice-orb-ring" style="animation-delay: 0.4s;"></div>
+      <button id="voice-orb" onclick="App.toggleListening()" class="relative w-24 h-24 rounded-full bg-primary text-white flex items-center justify-center shadow-[0_0_40px_rgba(0,0,0,0.3)] hover:scale-105 transition-transform duration-300 z-10">
+        <span id="voice-orb-icon" class="material-symbols-outlined text-[40px]" style="font-variation-settings:'FILL' 1">mic</span>
+      </button>
+    </div>
+
+    <!-- Wave bars (visible when listening) -->
+    <div id="voice-wave" class="flex items-center gap-1.5 h-8 wave-bars-paused">
+      <div class="wave-bar w-1.5 bg-primary/60 rounded-full"></div>
+      <div class="wave-bar w-1.5 bg-primary/60 rounded-full"></div>
+      <div class="wave-bar w-1.5 bg-primary/60 rounded-full"></div>
+      <div class="wave-bar w-1.5 bg-primary/60 rounded-full"></div>
+      <div class="wave-bar w-1.5 bg-primary/60 rounded-full"></div>
+    </div>
+
+    <!-- Transcript -->
+    <div class="w-full bg-white/40 backdrop-blur-md rounded-2xl p-4 glass-inner-border min-h-[80px]">
+      <p id="voice-transcript" class="font-body-md text-on-surface-variant text-center italic">Drücken Sie das Mikrofon um zu sprechen...</p>
+    </div>
+
+    <!-- AI Response -->
+    <div id="voice-response-container" class="w-full bg-primary/5 backdrop-blur-md rounded-2xl p-4 glass-inner-border hidden">
+      <div class="flex items-start gap-3">
+        <div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center shrink-0">
+          <span class="material-symbols-outlined text-white text-[16px]">smart_toy</span>
+        </div>
+        <p id="voice-response" class="font-body-md text-on-surface"></p>
+      </div>
+    </div>
+
+    <!-- Controls -->
+    <div class="flex gap-4 w-full justify-center">
+      <button onclick="App.toggleListening()" id="voice-listen-btn" class="flex-1 py-3 rounded-full bg-primary text-on-primary font-label-md flex items-center justify-center gap-2 hover:opacity-90 transition-opacity">
+        <span class="material-symbols-outlined text-[18px]">mic</span> Sprechen
+      </button>
+      <button onclick="App.stopVoiceConversation()" class="flex-1 py-3 rounded-full bg-white/30 glass-inner-border font-label-md text-on-surface-variant flex items-center justify-center gap-2 hover:bg-white/50 transition-colors">
+        <span class="material-symbols-outlined text-[18px]">stop</span> Beenden
+      </button>
+    </div>
+
+    <!-- Text input fallback (wenn Mikrofon nicht klappt) -->
+    <div class="flex gap-2 w-full">
+      <input id="voice-text-input" type="text" placeholder="Oder Nachricht tippen..."
+             class="flex-1 bg-white/40 backdrop-blur-md rounded-xl px-4 py-2 glass-inner-border text-body-md text-on-surface focus:outline-none focus:ring-2 focus:ring-primary/20 placeholder-on-surface-variant/40"
+             onkeypress="if(event.key==='Enter') App.sendVoiceText()"/>
+      <button onclick="App.sendVoiceText()" class="px-4 py-2 bg-white/30 glass-inner-border rounded-xl text-on-surface-variant hover:bg-white/50 transition-colors">
+        <span class="material-symbols-outlined text-[18px]">send</span>
+      </button>
+    </div>
+
+    <!-- Active AI provider badge -->
+    <div class="flex items-center justify-between w-full">
+      <span id="voice-provider-badge" class="font-label-sm text-label-sm text-on-surface-variant/70 bg-white/30 px-3 py-1 rounded-full glass-inner-border"></span>
+      <button onclick="App.openSettings()" class="font-label-sm text-label-sm text-on-surface-variant/60 hover:text-primary underline transition-colors">Einstellungen</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════ SETTINGS MODAL ═══════════════════ -->
+<div id="settings-modal" class="modal-backdrop hidden">
+  <div class="bg-white/20 backdrop-blur-[80px] rounded-[3rem] glass-inner-border shadow-[0_40px_100px_rgba(0,0,0,0.15)] w-full max-w-md flex flex-col gap-6 p-8">
+    <div class="flex justify-between items-center">
+      <h2 class="font-headline-md text-primary text-2xl tracking-tight">Einstellungen</h2>
+      <button onclick="App.closeSettings()" class="p-2 rounded-full hover:bg-on-surface/10 transition-colors text-on-surface-variant">
+        <span class="material-symbols-outlined">close</span>
+      </button>
+    </div>
+
+    <!-- User Name -->
+    <div class="flex flex-col gap-2">
+      <label class="font-label-md text-label-md text-on-surface-variant">Ihr Name</label>
+      <input id="settings-name" type="text" placeholder="z.B. Julian" class="bg-white/50 backdrop-blur-md rounded-xl px-4 py-3 glass-inner-border text-body-md font-body-md text-on-surface focus:outline-none focus:ring-2 focus:ring-primary/20 placeholder-on-surface-variant/50"/>
+    </div>
+
+    <!-- KI Provider -->
+    <div class="flex flex-col gap-2">
+      <label class="font-label-md text-label-md text-on-surface-variant">KI-Anbieter</label>
+      <select id="settings-provider" onchange="App.onProviderChange(this.value)" class="bg-white/50 backdrop-blur-md rounded-xl px-4 py-3 glass-inner-border text-body-md font-body-md text-on-surface focus:outline-none focus:ring-2 focus:ring-primary/20">
+        <option value="auto">🤖 Automatisch (empfohlen)</option>
+        <option value="chrome">🌐 Chrome Browser-KI (Gemini Nano – kostenlos)</option>
+        <option value="webllm">💻 Lokale KI – WebLLM (offline, ~870MB)</option>
+        <option value="gemini">☁️ Gemini API (API-Schlüssel erforderlich)</option>
+        <option value="offline">✍️ Offline-Modus (Befehle ohne KI)</option>
+      </select>
+
+      <!-- Chrome AI status -->
+      <div id="chrome-ai-status" class="hidden bg-white/30 rounded-xl p-3 glass-inner-border flex items-center gap-2 font-label-sm text-label-sm">
+        <span id="chrome-ai-icon" class="material-symbols-outlined text-[18px]">circle</span>
+        <span id="chrome-ai-msg">Prüfe Chrome Browser-KI...</span>
+      </div>
+
+      <!-- WebLLM section -->
+      <div id="webllm-section" class="hidden flex-col gap-2">
+        <div class="bg-white/30 rounded-xl p-3 glass-inner-border flex items-center justify-between">
+          <div class="flex items-center gap-2">
+            <span id="webllm-status-icon" class="material-symbols-outlined text-[18px] text-on-surface-variant">download</span>
+            <span id="webllm-status-label" class="font-label-sm text-label-sm text-on-surface-variant">Modell nicht geladen</span>
+          </div>
+          <button onclick="App.loadWebLLM()" id="webllm-load-btn" class="px-3 py-1.5 bg-primary text-on-primary rounded-lg font-label-sm text-label-sm hover:opacity-80 transition-opacity">
+            Laden
+          </button>
+        </div>
+        <p class="font-label-sm text-label-sm text-on-surface-variant/60">Erfordert Chrome/Edge mit WebGPU. Einmaliger Download (~870MB).</p>
+      </div>
+
+      <!-- Gemini API Key section -->
+      <div id="gemini-key-section" class="hidden flex-col gap-2">
+        <div class="relative">
+          <input id="settings-apikey" type="password" placeholder="AIza..." class="w-full bg-white/50 backdrop-blur-md rounded-xl px-4 py-3 pr-12 glass-inner-border text-body-md font-body-md text-on-surface focus:outline-none focus:ring-2 focus:ring-primary/20 placeholder-on-surface-variant/50"/>
+          <button onclick="App.toggleApiKeyVisibility()" class="absolute right-3 top-1/2 -translate-y-1/2 text-on-surface-variant hover:text-primary">
+            <span class="material-symbols-outlined text-[20px]">visibility</span>
+          </button>
+        </div>
+        <p class="font-label-sm text-label-sm text-on-surface-variant/70">
+          API-Schlüssel von <a href="https://aistudio.google.com/apikey" target="_blank" class="underline hover:text-primary">Google AI Studio</a>
+        </p>
+      </div>
+
+      <!-- Offline mode info -->
+      <div id="offline-info" class="hidden bg-white/30 rounded-xl p-3 glass-inner-border font-label-sm text-label-sm text-on-surface-variant">
+        ✍️ Sprachbefehle funktionieren lokal (To-Dos hinzufügen, Aufgaben verwalten, Zusammenfassungen) – ohne Internetverbindung.
+      </div>
+    </div>
+
+    <!-- Voice Selection -->
+    <div class="flex flex-col gap-2">
+      <label class="font-label-md text-label-md text-on-surface-variant">Stimme des Assistenten</label>
+      <select id="settings-voice" class="bg-white/50 backdrop-blur-md rounded-xl px-4 py-3 glass-inner-border text-body-md font-body-md text-on-surface focus:outline-none focus:ring-2 focus:ring-primary/20">
+        <option value="Aoede">Aoede (weiblich, warm)</option>
+        <option value="Kore">Kore (weiblich, klar)</option>
+        <option value="Charon">Charon (männlich, tief)</option>
+        <option value="Fenrir">Fenrir (männlich, kräftig)</option>
+        <option value="Puck">Puck (männlich, lebendig)</option>
+        <option value="browser">Browser-Stimme (kein API nötig)</option>
+      </select>
+    </div>
+
+    <!-- Greeting Name -->
+    <div class="flex flex-col gap-2">
+      <label class="font-label-md text-label-md text-on-surface-variant">Wie soll Sie der Assistent ansprechen?</label>
+      <input id="settings-greeting" type="text" placeholder="z.B. Herr Christen" class="bg-white/50 backdrop-blur-md rounded-xl px-4 py-3 glass-inner-border text-body-md font-body-md text-on-surface focus:outline-none focus:ring-2 focus:ring-primary/20 placeholder-on-surface-variant/50"/>
+    </div>
+
+    <button onclick="App.saveSettings()" class="w-full py-3 bg-primary text-on-primary rounded-xl font-label-md shadow-[0_0_15px_rgba(0,0,0,0.2)] hover:scale-[1.02] transition-transform duration-300">
+      Einstellungen speichern
+    </button>
+
+    <div class="border-t border-white/20 pt-4">
+      <button onclick="App.resetApp()" class="w-full py-2.5 rounded-xl border border-error/30 text-error font-label-md text-label-md hover:bg-error/10 transition-colors flex items-center justify-center gap-2">
+        <span class="material-symbols-outlined text-[18px]">restart_alt</span>
+        App zurücksetzen (behebt KI-Probleme)
+      </button>
+      <p class="font-label-sm text-label-sm text-on-surface-variant/50 text-center mt-1">Setzt nur KI-Einstellungen zurück, Ihre Aufgaben bleiben erhalten</p>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════ ADD TASK MODAL ═══════════════════ -->
+<div id="add-task-modal" class="modal-backdrop hidden">
+  <div class="bg-white/20 backdrop-blur-[80px] rounded-[3rem] glass-inner-border shadow-[0_40px_100px_rgba(0,0,0,0.15)] w-full max-w-md flex flex-col gap-6 p-8">
+    <div class="flex justify-between items-center">
+      <h2 id="add-task-title" class="font-headline-md text-primary text-2xl tracking-tight">Aufgabe hinzufügen</h2>
+      <button onclick="App.closeAddTask()" class="p-2 rounded-full hover:bg-on-surface/10 transition-colors text-on-surface-variant">
+        <span class="material-symbols-outlined">close</span>
+      </button>
+    </div>
+    <input id="task-title-input" type="text" placeholder="Aufgabentitel..." class="bg-white/50 backdrop-blur-md rounded-xl px-4 py-3 glass-inner-border text-body-md font-body-md text-on-surface focus:outline-none focus:ring-2 focus:ring-primary/20 placeholder-on-surface-variant/50"/>
+    <textarea id="task-desc-input" placeholder="Beschreibung (optional)..." rows="3" class="bg-white/50 backdrop-blur-md rounded-xl px-4 py-3 glass-inner-border text-body-md font-body-md text-on-surface focus:outline-none focus:ring-2 focus:ring-primary/20 placeholder-on-surface-variant/50 resize-none"></textarea>
+    <div class="grid grid-cols-2 gap-3">
+      <div class="flex flex-col gap-1">
+        <label class="font-label-sm text-label-sm text-on-surface-variant">Kategorie</label>
+        <input id="task-tag-input" type="text" placeholder="z.B. Design" class="bg-white/50 backdrop-blur-md rounded-xl px-4 py-2 glass-inner-border text-body-md font-body-md text-on-surface focus:outline-none focus:ring-2 focus:ring-primary/20 placeholder-on-surface-variant/50"/>
+      </div>
+      <div class="flex flex-col gap-1">
+        <label class="font-label-sm text-label-sm text-on-surface-variant">Priorität</label>
+        <select id="task-priority-input" class="bg-white/50 backdrop-blur-md rounded-xl px-4 py-2 glass-inner-border text-body-md font-body-md text-on-surface focus:outline-none focus:ring-2 focus:ring-primary/20">
+          <option value="hoch">Hoch</option>
+          <option value="mittel" selected>Mittel</option>
+          <option value="niedrig">Niedrig</option>
+        </select>
+      </div>
+    </div>
+    <input id="task-date-input" type="text" placeholder="Fälligkeitsdatum (optional)..." class="bg-white/50 backdrop-blur-md rounded-xl px-4 py-3 glass-inner-border text-body-md font-body-md text-on-surface focus:outline-none focus:ring-2 focus:ring-primary/20 placeholder-on-surface-variant/50"/>
+    <button onclick="App.saveTask()" class="w-full py-3 bg-primary text-on-primary rounded-xl font-label-md shadow-[0_0_15px_rgba(0,0,0,0.2)] hover:scale-[1.02] transition-transform duration-300">
+      Aufgabe speichern
+    </button>
+  </div>
+</div>
+
+<!-- ═══════════════════ GOAL MODAL ═══════════════════ -->
+<div id="goal-modal" class="modal-backdrop hidden">
+  <div class="bg-white/20 backdrop-blur-[80px] rounded-[3rem] glass-inner-border shadow-[0_40px_100px_rgba(0,0,0,0.15)] w-full max-w-sm flex flex-col gap-6 p-8">
+    <div class="flex justify-between items-center">
+      <h2 class="font-headline-md text-primary text-2xl tracking-tight">Wochenziel</h2>
+      <button onclick="document.getElementById('goal-modal').classList.add('hidden')" class="p-2 rounded-full hover:bg-on-surface/10 transition-colors text-on-surface-variant">
+        <span class="material-symbols-outlined">close</span>
+      </button>
+    </div>
+    <input id="goal-input" type="text" placeholder="Ziel beschreiben..." class="bg-white/50 backdrop-blur-md rounded-xl px-4 py-3 glass-inner-border text-body-md font-body-md text-on-surface focus:outline-none focus:ring-2 focus:ring-primary/20 placeholder-on-surface-variant/50" onkeypress="if(event.key==='Enter') App.saveGoal()"/>
+    <button onclick="App.saveGoal()" class="w-full py-3 bg-primary text-on-primary rounded-xl font-label-md shadow-[0_0_15px_rgba(0,0,0,0.2)] hover:scale-[1.02] transition-transform duration-300">
+      Ziel speichern
+    </button>
+  </div>
+</div>
+
+<!-- Toast Notification -->
+<div id="toast"></div>
+
+<!-- WebLLM Loading Overlay -->
+<div id="webllm-overlay" class="modal-backdrop hidden">
+  <div class="bg-white/20 backdrop-blur-[80px] rounded-[3rem] glass-inner-border shadow-[0_40px_100px_rgba(0,0,0,0.15)] w-full max-w-md flex flex-col items-center gap-6 p-10">
+    <div class="w-16 h-16 rounded-2xl bg-primary flex items-center justify-center">
+      <span class="material-symbols-outlined text-white text-[32px]">smart_toy</span>
+    </div>
+    <div class="text-center">
+      <h2 class="font-headline-md text-primary text-2xl tracking-tight">KI-Modell wird geladen</h2>
+      <p class="font-body-md text-on-surface-variant mt-2">Das lokale Sprachmodell wird heruntergeladen und installiert. Dies geschieht nur einmalig.</p>
+    </div>
+    <div class="w-full flex flex-col gap-2">
+      <div class="flex justify-between font-label-sm text-label-sm text-on-surface-variant">
+        <span id="webllm-status-text">Initialisiere...</span>
+        <span id="webllm-progress-pct">0%</span>
+      </div>
+      <div class="h-2 w-full bg-black/10 rounded-full overflow-hidden">
+        <div id="webllm-progress-bar" class="h-full bg-primary rounded-full transition-all duration-300" style="width:0%"></div>
+      </div>
+      <p id="webllm-detail-text" class="font-label-sm text-label-sm text-on-surface-variant/60 text-center"></p>
+    </div>
+    <p class="font-label-sm text-label-sm text-on-surface-variant/50 text-center">Modell: Llama 3.2 · ~870MB · WebGPU</p>
+  </div>
+</div>
+
+<!-- ═══════════════════ APPLICATION LOGIC ═══════════════════ -->
+<script>
+const App = (() => {
+  // ─── STATE ───────────────────────────────────────────────
+  let state = {
+    apiKey: '',
+    aiProvider: 'auto',
+    userName: 'Julian',
+    greetingName: 'Sie',
+    voiceName: 'browser',
+    tasks: { backlog: [], inProgress: [], done: [] },
+    weeklyGoals: [],
+    todos: [],
+    chatHistory: [],
+    weeklyPlan: {},
+    quickNote: '',
+    todoFilter: 'all',
+    currentView: 'home',
+    draggedTask: null,
+    draggedFrom: null,
+    addTaskColumn: 'backlog',
+    editingTaskId: null,
+    isListening: false,
+    isSpeaking: false,
+    voiceConversationActive: false,
+    recognition: null,
+    audioCtx: null,
+    webLLMEngine: null,
+    webLLMLoaded: false,
+    chromeAIAvailable: null,
+  };
+
+  // ─── PERSISTENCE ─────────────────────────────────────────
+  function save() {
+    localStorage.setItem('gm_state', JSON.stringify({
+      apiKey: state.apiKey,
+      aiProvider: state.aiProvider,
+      userName: state.userName,
+      greetingName: state.greetingName,
+      voiceName: state.voiceName,
+      tasks: state.tasks,
+      weeklyGoals: state.weeklyGoals,
+      todos: state.todos,
+      chatHistory: state.chatHistory.slice(-50),
+      weeklyPlan: state.weeklyPlan,
+      quickNote: state.quickNote,
+    }));
+  }
+
+  function load() {
+    try {
+      const saved = JSON.parse(localStorage.getItem('gm_state') || '{}');
+      if (saved.aiProvider) state.aiProvider = saved.aiProvider;
+      // API-Key nur laden wenn Provider 'gemini' – verhindert versehentliche Gemini-Aufrufe
+      if (saved.apiKey && (saved.aiProvider === 'gemini' || !saved.aiProvider)) {
+        state.apiKey = saved.apiKey;
+      }
+      if (saved.userName) state.userName = saved.userName;
+      if (saved.greetingName) state.greetingName = saved.greetingName;
+      // Gemini-Stimmen nur wenn Provider 'gemini', sonst Browser-Stimme
+      const geminiVoices = ['Aoede','Kore','Charon','Fenrir','Puck'];
+      if (saved.voiceName && !(geminiVoices.includes(saved.voiceName) && state.aiProvider !== 'gemini')) {
+        state.voiceName = saved.voiceName;
+      }
+      if (saved.tasks) state.tasks = saved.tasks;
+      if (saved.weeklyGoals) state.weeklyGoals = saved.weeklyGoals;
+      if (saved.todos) state.todos = saved.todos;
+      if (saved.chatHistory) state.chatHistory = saved.chatHistory;
+      if (saved.weeklyPlan) state.weeklyPlan = saved.weeklyPlan;
+      if (saved.quickNote) state.quickNote = saved.quickNote;
+    } catch(e) {}
+
+    // Seed demo data if empty
+    if (!state.tasks.backlog.length && !state.tasks.inProgress.length && !state.tasks.done.length) {
+      state.tasks = {
+        backlog: [
+          { id: 'task_1', title: 'Q3 Marketing Strategie', desc: 'Recherche und Zusammenfassung der wichtigsten KPIs für das kommende Quartal.', tag: 'Marketing', priority: 'hoch', date: '12. Okt' },
+          { id: 'task_2', title: 'Design System Update', desc: "Integration der neuen 'Liquid Glass' Tokens in Figma und Tailwind.", tag: 'Design', priority: 'mittel', date: null }
+        ],
+        inProgress: [
+          { id: 'task_3', title: 'Landingpage Re-Design', desc: 'Umsetzung der neuen Bento-Grid Strukturen in der Hero-Sektion.', tag: 'Development', priority: 'hoch', date: 'Heute', progress: 65 },
+          { id: 'task_4', title: 'Kundenpräsentation', desc: 'Slides für das Q4 Pitch-Meeting finalisieren.', tag: 'Sales', priority: 'niedrig', date: null }
+        ],
+        done: [
+          { id: 'task_5', title: 'Team Onboarding', desc: '', tag: null, priority: null, date: null },
+          { id: 'task_6', title: 'Server Migration', desc: '', tag: null, priority: null, date: null }
+        ]
+      };
+    }
+    if (!state.weeklyGoals.length) {
+      state.weeklyGoals = [
+        { id: 'g1', text: 'Design System finalisieren', done: false },
+        { id: 'g2', text: 'Q3 Report abgeben', done: false },
+        { id: 'g3', text: 'Team Kick-off', done: true }
+      ];
+    }
+  }
+
+  // ─── TOAST ───────────────────────────────────────────────
+  function toast(msg, duration = 2500) {
+    const el = document.getElementById('toast');
+    el.textContent = msg;
+    el.classList.add('show');
+    setTimeout(() => el.classList.remove('show'), duration);
+  }
+
+  // ─── NAVIGATION ──────────────────────────────────────────
+  function switchView(viewId) {
+    state.currentView = viewId;
+    document.querySelectorAll('.view-panel').forEach(p => p.classList.remove('active'));
+    const panel = document.getElementById('view-' + viewId);
+    if (panel) panel.classList.add('active');
+
+    // Update sidebar
+    document.querySelectorAll('.nav-btn').forEach(b => {
+      b.classList.remove('active', 'bg-primary', 'text-on-primary');
+      b.classList.add('text-on-surface-variant/70');
+    });
+    const activeBtn = document.querySelector(`[data-nav="${viewId}"]`);
+    if (activeBtn) {
+      activeBtn.classList.add('active', 'bg-primary', 'text-on-primary');
+      activeBtn.classList.remove('text-on-surface-variant/70');
+    }
+
+    // Update nav links
+    document.querySelectorAll('.nav-link').forEach(l => {
+      const isActive = l.getAttribute('data-view') === viewId;
+      l.classList.toggle('text-primary', isActive);
+      l.classList.toggle('font-bold', isActive);
+      l.classList.toggle('border-b-2', isActive);
+      l.classList.toggle('border-primary', isActive);
+      l.classList.toggle('text-on-surface-variant', !isActive);
+    });
+
+    if (viewId === 'weekly') renderWeeklyPlan();
+    if (viewId === 'todos') renderTodos();
+    if (viewId === 'aichat') renderChat();
+  }
+
+  // ─── AI ROUTING ──────────────────────────────────────────
+  async function callAI(userMessage, history = []) {
+    const provider = resolveProvider();
+
+    if (provider === 'gemini') return callGeminiAPI(userMessage, history);
+    if (provider === 'chrome') {
+      try { return await callChromeAI(userMessage, history); }
+      catch(e) { return callOfflineMode(userMessage); }
+    }
+    if (provider === 'webllm') {
+      try { return await callWebLLMInference(userMessage, history); }
+      catch(e) { return callOfflineMode(userMessage); }
+    }
+    return callOfflineMode(userMessage);
+  }
+
+  function resolveProvider() {
+    const p = state.aiProvider;
+    if (p === 'gemini') { if (!state.apiKey) return 'offline'; return 'gemini'; }
+    if (p === 'chrome') { return state.chromeAIAvailable ? 'chrome' : 'offline'; }
+    if (p === 'webllm') { return state.webLLMLoaded ? 'webllm' : 'offline'; }
+    if (p === 'offline') return 'offline';
+    // auto: chrome → webllm → offline (Gemini NIE automatisch – erfordert Key)
+    if (state.chromeAIAvailable) return 'chrome';
+    if (state.webLLMLoaded) return 'webllm';
+    return 'offline';
+  }
+
+  function getActiveProviderLabel() {
+    const p = resolveProvider();
+    return { gemini: '☁️ Gemini API', chrome: '🌐 Chrome KI', webllm: '💻 Lokale KI', offline: '✍️ Offline-Modus' }[p] || 'Offline';
+  }
+
+  // ─── GEMINI API ──────────────────────────────────────────
+  async function callGeminiAPI(userMessage, history = []) {
+    if (!state.apiKey) throw new Error('NO_API_KEY');
+
+    const systemPrompt = buildSystemPrompt();
+    const contents = [
+      ...history.slice(-20).map(m => ({ role: m.role, parts: m.parts })),
+      { role: 'user', parts: [{ text: userMessage }] }
+    ];
+
+    const res = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${state.apiKey}`,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          system_instruction: { parts: [{ text: systemPrompt }] },
+          contents
+        })
+      }
+    );
+
+    const data = await res.json();
+    if (data.error) throw new Error(data.error.message);
+    return data.candidates?.[0]?.content?.parts?.[0]?.text || '';
+  }
+
+  // ─── CHROME BUILT-IN AI (Gemini Nano) ────────────────────
+  async function detectChromeAI() {
+    try {
+      if (!window.ai?.languageModel) { state.chromeAIAvailable = false; return false; }
+      const cap = await window.ai.languageModel.capabilities();
+      state.chromeAIAvailable = cap.available !== 'no';
+      return state.chromeAIAvailable;
+    } catch(e) {
+      state.chromeAIAvailable = false;
+      return false;
+    }
+  }
+
+  async function callChromeAI(userMessage, history = []) {
+    if (!state.chromeAIAvailable) throw new Error('Chrome AI nicht verfügbar');
+    const session = await window.ai.languageModel.create({
+      systemPrompt: buildSystemPrompt()
+    });
+    const histText = history.slice(-6).map(m =>
+      `${m.role === 'user' ? 'Nutzer' : 'Assistent'}: ${m.parts?.[0]?.text || ''}`
+    ).join('\n');
+    const prompt = histText ? histText + '\nNutzer: ' + userMessage : userMessage;
+    const response = await session.prompt(prompt);
+    session.destroy();
+    return response;
+  }
+
+  // ─── WEBLLM (lokales Modell im Browser) ──────────────────
+  const WEBLLM_MODEL = 'Llama-3.2-1B-Instruct-q4f32_1-MLC';
+
+  async function loadWebLLM() {
+    const WebLLM = window._WebLLM;
+    if (!WebLLM) { toast('WebLLM noch nicht geladen, bitte kurz warten...'); return; }
+    if (state.webLLMLoaded) { toast('KI-Modell bereits geladen ✓'); return; }
+
+    document.getElementById('webllm-overlay').classList.remove('hidden');
+
+    try {
+      state.webLLMEngine = await WebLLM.CreateMLCEngine(
+        WEBLLM_MODEL,
+        {
+          initProgressCallback: (report) => {
+            const pct = Math.round((report.progress || 0) * 100);
+            document.getElementById('webllm-progress-bar').style.width = pct + '%';
+            document.getElementById('webllm-progress-pct').textContent = pct + '%';
+            document.getElementById('webllm-status-text').textContent = report.text || 'Lade...';
+            document.getElementById('webllm-detail-text').textContent =
+              report.timeElapsed ? `${Math.round(report.timeElapsed)}s vergangen` : '';
+          }
+        }
+      );
+      state.webLLMLoaded = true;
+      document.getElementById('webllm-overlay').classList.add('hidden');
+      document.getElementById('webllm-status-label').textContent = '✓ Modell geladen – bereit';
+      document.getElementById('webllm-status-icon').textContent = 'check_circle';
+      document.getElementById('webllm-status-icon').style.color = 'green';
+      document.getElementById('webllm-load-btn').textContent = 'Geladen ✓';
+      document.getElementById('webllm-load-btn').disabled = true;
+      toast('✓ KI-Modell erfolgreich geladen!');
+    } catch(e) {
+      document.getElementById('webllm-overlay').classList.add('hidden');
+      toast('WebLLM Fehler: ' + e.message + '. Bitte Chrome/Edge mit WebGPU nutzen.');
+    }
+  }
+
+  async function callWebLLMInference(userMessage, history = []) {
+    if (!state.webLLMEngine || !state.webLLMLoaded) throw new Error('WebLLM nicht geladen');
+    const sys = buildSystemPrompt();
+    const messages = [
+      { role: 'system', content: sys },
+      ...history.slice(-10).map(m => ({
+        role: m.role === 'model' ? 'assistant' : 'user',
+        content: m.parts?.[0]?.text || ''
+      })),
+      { role: 'user', content: userMessage }
+    ];
+    const reply = await state.webLLMEngine.chat.completions.create({
+      messages,
+      temperature: 0.7,
+      max_tokens: 512,
+    });
+    return reply.choices?.[0]?.message?.content || '';
+  }
+
+  // ─── OFFLINE / SMART TEMPLATE MODE ───────────────────────
+  function callOfflineMode(userMessage) {
+    const msg = userMessage.toLowerCase().trim();
+    const today = new Date().toLocaleDateString('de-DE', { weekday: 'long', day: 'numeric', month: 'long' });
+    const allTasks = [...state.tasks.backlog, ...state.tasks.inProgress];
+    const openTodos = state.todos.filter(t => !t.done);
+    const name = state.greetingName;
+
+    // Greetings
+    if (/^(hallo|hi|hey|guten morgen|guten tag|moin|servus|grüezi)/.test(msg)) {
+      const taskCount = allTasks.length;
+      const todoCount = openTodos.length;
+      return `Guten Tag, ${name}! Schön, dass Sie da sind. Heute ist ${today}.
+
+Sie haben aktuell **${taskCount} aktive Aufgaben** und **${todoCount} offene To-Dos**.
+${openTodos.length > 0 ? `Ihre offenen Punkte: ${openTodos.slice(0,3).map(t=>t.text).join(', ')}${openTodos.length > 3 ? ' …' : ''}.` : ''}
+
+Was planen Sie heute? Ich kann Aufgaben hinzufügen, To-Dos eintragen oder eine Zusammenfassung erstellen.`;
+    }
+
+    // Extract todo from "schreib X in meine todos / füge X hinzu"
+    const todoPatterns = [
+      /(?:schreib|trag|füge?|notiere?|erstell)\s+(?:bitte\s+)?["']?(.+?)["']?\s+(?:in|auf)\s+(?:meine[nr]?\s+)?to.?dos?/i,
+      /(?:schreib|trag|füge?|notiere?|erstell)\s+(?:bitte\s+)?["']?(.+?)["']?\s+(?:als|als\s+)?(?:aufgabe|todo|task)/i,
+      /(?:to.?do|aufgabe|task):\s*["']?(.+?)["']?$/i,
+      /(?:erinnere?\s+mich\s+(?:daran\s+)?(?:an\s+)?(?:bitte\s+)?)(.+?)$/i,
+    ];
+    for (const pat of todoPatterns) {
+      const m = msg.match(pat);
+      if (m) {
+        const text = m[1].trim().replace(/^(bitte|an|dass|zu)\s+/i, '');
+        if (text.length > 2) {
+          addTodoItem(text);
+          return `[AKTION: add_todo | text: "${text}"]
+
+Ich habe "${text}" in Ihre To-Do-Liste eingetragen. ✓
+
+Sie haben jetzt ${state.todos.filter(t=>!t.done).length} offene To-Dos.`;
+        }
+      }
+    }
+
+    // Add task / aufgabe
+    const taskPatterns = [
+      /(?:füge?|erstell|leg\s+an)\s+(?:bitte\s+)?(?:eine?\s+)?aufgabe?\s+["']?(.+?)["']?\s+(?:zum\s+)?(?:backlog|in\s+arbeit|erledigt)?/i,
+      /neue?\s+aufgabe?:\s*["']?(.+?)["']?/i,
+    ];
+    for (const pat of taskPatterns) {
+      const m = msg.match(pat);
+      if (m) {
+        const title = m[1].trim();
+        if (title.length > 2) {
+          const col = /in\s+arbeit/i.test(msg) ? 'inProgress' : 'backlog';
+          state.tasks[col].push({ id: 'task_' + Date.now(), title, desc: '', tag: null, priority: 'mittel', date: null });
+          save(); renderKanban();
+          return `[AKTION: add_task | title: "${title}" | column: "${col}"]
+
+Aufgabe **"${title}"** wurde zum ${col === 'inProgress' ? 'Bereich "In Arbeit"' : 'Backlog'} hinzugefügt. ✓`;
+        }
+      }
+    }
+
+    // Summary / Zusammenfassung
+    if (/zusammenfassung|überblick|status|wie\s+läuft|wie\s+steht|was\s+steht\s+an/.test(msg)) {
+      const done = state.tasks.done.length;
+      const inProgress = state.tasks.inProgress.map(t => `• ${t.title}`).join('\n') || '• Keine';
+      const backlog = state.tasks.backlog.map(t => `• ${t.title}`).join('\n') || '• Keine';
+      const todosOpen = openTodos.map(t => `• ${t.text}`).join('\n') || '• Keine';
+      return `**Ihr aktueller Überblick** (${today}):
+
+**In Arbeit:**
+${inProgress}
+
+**Backlog:**
+${backlog}
+
+**Offene To-Dos:**
+${todosOpen}
+
+**Abgeschlossen:** ${done} Aufgaben ✓
+
+${openTodos.length > 0 ? `Empfehlung: Konzentrieren Sie sich heute auf "${openTodos[0].text}".` : 'Hervorragend – alle To-Dos erledigt!'}`;
+    }
+
+    // Weekly plan request
+    if (/wochenplan|diese\s+woche\s+planen|woche\s+organisieren/.test(msg)) {
+      return `Um einen detaillierten KI-Wochenplan zu erstellen, wechseln Sie bitte zur Ansicht "Wochenplan" und klicken Sie auf **"KI-Wochenplan erstellen"**.
+
+Alternativ kann ich Ihnen helfen, einzelne Aufgaben für bestimmte Tage einzutragen. Sagen Sie z.B. "Füge für Montag die Aufgabe Kundengespräch hinzu".`;
+    }
+
+    // Help
+    if (/hilfe|was\s+kannst\s+du|was\s+kann\s+ich|befehle|kommandos/.test(msg)) {
+      return `**Was ich für Sie tun kann** (Offline-Modus):
+
+• **To-Do hinzufügen:** "Schreib [Aufgabe] in meine To-Dos"
+• **Aufgabe hinzufügen:** "Neue Aufgabe: [Titel]"
+• **Überblick:** "Zeig mir eine Zusammenfassung"
+• **Begrüßung:** Sagen Sie einfach "Hallo"
+
+Für erweiterte KI-Funktionen aktivieren Sie Chrome Browser-KI oder WebLLM in den Einstellungen.`;
+    }
+
+    // Default fallback
+    return `Ich habe Ihre Nachricht erhalten, ${name}.
+
+Im Offline-Modus stehen mir begrenzte Funktionen zur Verfügung. Ich kann:
+• To-Dos hinzufügen ("Schreib X in meine To-Dos")
+• Aufgaben erstellen ("Neue Aufgabe: X")
+• Zusammenfassungen anzeigen ("Überblick")
+
+Für intelligentere Antworten aktivieren Sie bitte Chrome Browser-KI oder WebLLM in den **Einstellungen**.`;
+  }
+
+  function buildSystemPrompt() {
+    const today = new Date().toLocaleDateString('de-DE', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+    const allTasks = [
+      ...state.tasks.backlog.map(t => `[Backlog] ${t.title}`),
+      ...state.tasks.inProgress.map(t => `[In Arbeit] ${t.title}`),
+      ...state.tasks.done.map(t => `[Erledigt] ${t.title}`)
+    ];
+    const openTodos = state.todos.filter(t => !t.done).map(t => t.text);
+    const goals = state.weeklyGoals.map(g => `${g.done ? '✓' : '○'} ${g.text}`);
+
+    return `Du bist "GodMode AI", ein hochintelligenter persönlicher Planungsassistent.
+PFLICHT: Sprich den Nutzer IMMER mit "Sie" an — niemals "du".
+Antworte immer auf Deutsch. Sei präzise, freundlich und professionell.
+Wenn der Nutzer "Hallo" oder eine Begrüßung sagt, begrüße ihn herzlich als ${state.greetingName} und frage, was er heute plant.
+
+AKTIONEN: Wenn der Nutzer Aufgaben, To-Dos oder Ziele erwähnt, die du hinzufügen sollst, antworte im Format:
+[AKTION: add_todo | text: "Aufgabentext"]
+[AKTION: add_task | title: "Titel" | column: "backlog/inProgress/done" | tag: "Kategorie"]
+[AKTION: complete_todo | id: "todo_id"]
+
+Aktueller Kontext:
+Datum: ${today}
+Aufgaben: ${allTasks.join(', ') || 'keine'}
+Offene To-Dos: ${openTodos.join(', ') || 'keine'}
+Wochenziele: ${goals.join(', ') || 'keine'}
+Notiz: ${state.quickNote || 'keine'}`;
+  }
+
+  function parseActions(text) {
+    const actions = [];
+    const actionRegex = /\[AKTION:\s*(\w+)(?:\s*\|[^\]]+)?\]/g;
+    let match;
+    while ((match = actionRegex.exec(text)) !== null) {
+      const fullMatch = match[0];
+      const type = match[1];
+      const params = {};
+      const pairs = fullMatch.replace(/\[AKTION:\s*\w+/, '').replace(/\]$/, '').split('|');
+      pairs.forEach(pair => {
+        const kv = pair.split(':');
+        if (kv.length >= 2) {
+          const key = kv[0].trim();
+          const val = kv.slice(1).join(':').trim().replace(/^["']|["']$/g, '');
+          if (key) params[key] = val;
+        }
+      });
+      actions.push({ type, params });
+    }
+    return actions;
+  }
+
+  function executeActions(actions) {
+    actions.forEach(({ type, params }) => {
+      if (type === 'add_todo' && params.text) {
+        addTodoItem(params.text);
+        toast(`✓ To-Do hinzugefügt: "${params.text}"`);
+      } else if (type === 'add_task' && params.title) {
+        const col = ['backlog', 'inProgress', 'done'].includes(params.column) ? params.column : 'backlog';
+        const task = { id: 'task_' + Date.now(), title: params.title, desc: '', tag: params.tag || null, priority: 'mittel', date: null };
+        state.tasks[col].push(task);
+        renderKanban();
+        toast(`✓ Aufgabe hinzugefügt: "${params.title}"`);
+      }
+    });
+    save();
+  }
+
+  // ─── GEMINI TTS ──────────────────────────────────────────
+  async function speakText(text) {
+    if (!text || state.isSpeaking) return;
+    const cleanText = text.replace(/\[AKTION:[^\]]+\]/g, '').replace(/\*\*/g, '').trim();
+    if (!cleanText) return;
+
+    state.isSpeaking = true;
+
+    // Gemini TTS NUR wenn Provider explizit 'gemini' UND key vorhanden UND Gemini-Stimme gewählt
+    const useGeminiTTS = state.aiProvider === 'gemini' && state.apiKey && state.voiceName !== 'browser';
+
+    if (useGeminiTTS) {
+      try { await speakGemini(cleanText); } catch(e) { await speakBrowser(cleanText); }
+    } else {
+      await speakBrowser(cleanText);
+    }
+    state.isSpeaking = false;
+  }
+
+  async function speakGemini(text) {
+    const res = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-tts:generateContent?key=${state.apiKey}`,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          contents: [{ parts: [{ text }] }],
+          generationConfig: {
+            responseModalities: ['AUDIO'],
+            speechConfig: {
+              voiceConfig: {
+                prebuiltVoiceConfig: { voiceName: state.voiceName }
+              }
+            }
+          }
+        })
+      }
+    );
+    const data = await res.json();
+    if (data.error) throw new Error(data.error.message);
+
+    const b64 = data.candidates?.[0]?.content?.parts?.[0]?.inlineData?.data;
+    if (!b64) throw new Error('No audio data');
+
+    const pcm = base64ToBuffer(b64);
+    const wav = buildWav(pcm, 24000, 1, 16);
+    await playBuffer(wav);
+  }
+
+  function speakBrowser(text) {
+    return new Promise(resolve => {
+      speechSynthesis.cancel();
+      const utt = new SpeechSynthesisUtterance(text);
+      utt.lang = 'de-DE';
+      utt.rate = 0.95;
+      const voices = speechSynthesis.getVoices();
+      const de = voices.find(v => v.lang.startsWith('de'));
+      if (de) utt.voice = de;
+      utt.onend = resolve;
+      utt.onerror = resolve;
+      speechSynthesis.speak(utt);
+    });
+  }
+
+  function base64ToBuffer(b64) {
+    const bin = atob(b64);
+    const buf = new ArrayBuffer(bin.length);
+    const view = new Uint8Array(buf);
+    for (let i = 0; i < bin.length; i++) view[i] = bin.charCodeAt(i);
+    return buf;
+  }
+
+  function buildWav(pcmBuf, sr, ch, bps) {
+    const dataSize = pcmBuf.byteLength;
+    const buf = new ArrayBuffer(44 + dataSize);
+    const v = new DataView(buf);
+    const wstr = (off, s) => { for (let i = 0; i < s.length; i++) v.setUint8(off + i, s.charCodeAt(i)); };
+    wstr(0, 'RIFF'); v.setUint32(4, 36 + dataSize, true); wstr(8, 'WAVE');
+    wstr(12, 'fmt '); v.setUint32(16, 16, true); v.setUint16(20, 1, true);
+    v.setUint16(22, ch, true); v.setUint32(24, sr, true);
+    v.setUint32(28, sr * ch * bps / 8, true); v.setUint16(32, ch * bps / 8, true);
+    v.setUint16(34, bps, true); wstr(36, 'data'); v.setUint32(40, dataSize, true);
+    new Uint8Array(buf).set(new Uint8Array(pcmBuf), 44);
+    return buf;
+  }
+
+  async function playBuffer(wavBuf) {
+    if (!state.audioCtx) state.audioCtx = new AudioContext();
+    const audio = await state.audioCtx.decodeAudioData(wavBuf);
+    const src = state.audioCtx.createBufferSource();
+    src.buffer = audio;
+    src.connect(state.audioCtx.destination);
+    return new Promise(resolve => { src.onended = resolve; src.start(); });
+  }
+
+  // ─── VOICE AI ────────────────────────────────────────────
+  function openVoice() {
+    const modal = document.getElementById('voice-modal');
+    modal.classList.remove('hidden');
+    const badge = document.getElementById('voice-provider-badge');
+    if (badge) badge.textContent = getActiveProviderLabel();
+    updateVoiceUI('idle');
+  }
+
+  function closeVoice() {
+    stopListening();
+    speechSynthesis.cancel();
+    state.voiceConversationActive = false;
+    document.getElementById('voice-modal').classList.add('hidden');
+  }
+
+  function stopVoiceConversation() {
+    stopListening();
+    speechSynthesis.cancel();
+    state.voiceConversationActive = false;
+    updateVoiceUI('idle');
+  }
+
+  function toggleListening() {
+    if (state.isListening) {
+      stopListening();
+    } else {
+      startListening();
+    }
+  }
+
+  function startListening() {
+    if (!window.SpeechRecognition && !window.webkitSpeechRecognition) {
+      toast('Spracherkennung nicht unterstützt. Bitte Chrome nutzen.');
+      return;
+    }
+    stopListening();
+
+    const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+    state.recognition = new SR();
+    state.recognition.lang = 'de-DE';
+    state.recognition.continuous = false;
+    state.recognition.interimResults = true;
+
+    state.recognition.onresult = (e) => {
+      const result = e.results[e.results.length - 1];
+      const transcript = result[0].transcript;
+      document.getElementById('voice-transcript').textContent = transcript;
+      if (result.isFinal) {
+        handleVoiceInput(transcript);
+      }
+    };
+
+    state.recognition.onerror = (e) => {
+      state.isListening = false;
+      updateVoiceUI('idle');
+      if (e.error === 'network') {
+        document.getElementById('voice-transcript').textContent = 'Spracherkennung benötigt Internet. Bitte Text im KI-Chat eingeben.';
+      } else if (e.error === 'not-allowed') {
+        document.getElementById('voice-transcript').textContent = 'Mikrofon-Zugriff verweigert. Bitte im Browser erlauben.';
+      } else if (e.error !== 'no-speech' && e.error !== 'aborted') {
+        document.getElementById('voice-transcript').textContent = 'Fehler: ' + e.error + ' – bitte KI-Chat nutzen.';
+      }
+    };
+
+    state.recognition.onend = () => {
+      if (state.isListening) {
+        state.isListening = false;
+        updateVoiceUI('idle');
+      }
+    };
+
+    state.recognition.start();
+    state.isListening = true;
+    state.voiceConversationActive = true;
+    updateVoiceUI('listening');
+    document.getElementById('voice-transcript').textContent = 'Ich höre zu...';
+  }
+
+  function stopListening() {
+    if (state.recognition) {
+      try { state.recognition.stop(); } catch(e) {}
+      state.recognition = null;
+    }
+    state.isListening = false;
+    updateVoiceUI('idle');
+  }
+
+  async function handleVoiceInput(transcript) {
+    stopListening();
+    updateVoiceUI('thinking');
+
+    try {
+      const aiText = await callAI(transcript, state.chatHistory);
+      const actions = parseActions(aiText);
+      executeActions(actions);
+
+      const cleanResponse = aiText.replace(/\[AKTION:[^\]]+\]/g, '').trim();
+
+      state.chatHistory.push(
+        { role: 'user', parts: [{ text: transcript }] },
+        { role: 'model', parts: [{ text: aiText }] }
+      );
+      save();
+
+      // Show response
+      const respContainer = document.getElementById('voice-response-container');
+      const respEl = document.getElementById('voice-response');
+      respContainer.classList.remove('hidden');
+      respEl.textContent = cleanResponse;
+
+      updateVoiceUI('speaking');
+      await speakText(cleanResponse);
+
+      // Continue listening after response
+      if (state.voiceConversationActive) {
+        updateVoiceUI('idle');
+        setTimeout(() => {
+          if (state.voiceConversationActive) startListening();
+        }, 800);
+      } else {
+        updateVoiceUI('idle');
+      }
+
+      if (state.currentView === 'aichat') renderChat();
+    } catch(e) {
+      // Graceful fallback to offline if any AI fails
+      try {
+        const offlineResp = callOfflineMode(transcript);
+        const respContainer = document.getElementById('voice-response-container');
+        const respEl = document.getElementById('voice-response');
+        respContainer.classList.remove('hidden');
+        respEl.textContent = offlineResp;
+        updateVoiceUI('speaking');
+        await speakText(offlineResp);
+        updateVoiceUI('idle');
+        if (state.voiceConversationActive) setTimeout(() => { if (state.voiceConversationActive) startListening(); }, 800);
+      } catch(e2) {
+        document.getElementById('voice-transcript').textContent = 'Fehler: ' + e.message;
+        updateVoiceUI('idle');
+      }
+    }
+  }
+
+  async function sendVoiceText() {
+    const input = document.getElementById('voice-text-input');
+    const text = input.value.trim();
+    if (!text) return;
+    input.value = '';
+    document.getElementById('voice-transcript').textContent = text;
+    await handleVoiceInput(text);
+  }
+
+  function updateVoiceUI(mode) {
+    const orb = document.getElementById('voice-orb');
+    const orbIcon = document.getElementById('voice-orb-icon');
+    const statusText = document.getElementById('voice-status-text');
+    const wave = document.getElementById('voice-wave');
+    const listenBtn = document.getElementById('voice-listen-btn');
+
+    wave.classList.add('wave-bars-paused');
+
+    switch(mode) {
+      case 'listening':
+        orb.classList.add('voice-orb-listening');
+        orbIcon.textContent = 'mic';
+        statusText.textContent = 'Ich höre zu...';
+        wave.classList.remove('wave-bars-paused');
+        listenBtn.innerHTML = '<span class="material-symbols-outlined text-[18px]">stop</span> Stopp';
+        break;
+      case 'thinking':
+        orb.classList.remove('voice-orb-listening');
+        orbIcon.textContent = 'psychology';
+        statusText.textContent = 'Ich denke nach...';
+        listenBtn.innerHTML = '<span class="material-symbols-outlined text-[18px]">hourglass_empty</span> Verarbeite...';
+        break;
+      case 'speaking':
+        orb.classList.add('voice-orb-listening');
+        orbIcon.textContent = 'volume_up';
+        statusText.textContent = 'Ich spreche...';
+        wave.classList.remove('wave-bars-paused');
+        listenBtn.innerHTML = '<span class="material-symbols-outlined text-[18px]">volume_up</span> Spreche...';
+        break;
+      default:
+        orb.classList.remove('voice-orb-listening');
+        orbIcon.textContent = 'mic';
+        statusText.textContent = 'Drücken Sie das Mikrofon um zu sprechen';
+        listenBtn.innerHTML = '<span class="material-symbols-outlined text-[18px]">mic</span> Sprechen';
+    }
+  }
+
+  // ─── AI CHAT ─────────────────────────────────────────────
+  async function sendChat() {
+    const input = document.getElementById('chat-input');
+    const text = input.value.trim();
+    if (!text) return;
+    input.value = '';
+
+    state.chatHistory.push({ role: 'user', parts: [{ text }] });
+    renderChat();
+    showChatTyping();
+
+    try {
+      const response = await callAI(text, state.chatHistory.slice(0, -1));
+      const actions = parseActions(response);
+      executeActions(actions);
+
+      state.chatHistory.push({ role: 'model', parts: [{ text: response }] });
+      save();
+      renderChat();
+    } catch(e) {
+      hideChatTyping();
+      // Fallback to offline mode
+      try {
+        const userMsg = state.chatHistory[state.chatHistory.length - 1]?.parts?.[0]?.text || '';
+        const offlineResp = callOfflineMode(userMsg);
+        state.chatHistory.push({ role: 'model', parts: [{ text: offlineResp }] });
+      } catch(e2) {
+        state.chatHistory.push({ role: 'model', parts: [{ text: 'Fehler: ' + e.message }] });
+      }
+      renderChat();
+    }
+  }
+
+  async function quickChatAction(type) {
+    const prompts = {
+      summary: 'Erstellen Sie mir bitte eine detaillierte Zusammenfassung meines heutigen Tages basierend auf meinen Aufgaben und To-Dos.',
+      plan: 'Bitte erstellen Sie mir einen strukturierten Wochenplan basierend auf meinen aktuellen Aufgaben und Zielen.',
+      priority: 'Welche Aufgaben sollte ich heute priorisieren und warum? Bitte geben Sie mir eine klare Empfehlung.',
+      review: 'Wie war meine Produktivität diese Woche? Was kann ich verbessern?'
+    };
+    switchView('aichat');
+    const input = document.getElementById('chat-input');
+    input.value = prompts[type] || '';
+    setTimeout(() => sendChat(), 100);
+  }
+
+  function showChatTyping() {
+    const msgs = document.getElementById('chat-messages');
+    const typing = document.createElement('div');
+    typing.id = 'chat-typing';
+    typing.className = 'flex items-start gap-3';
+    typing.innerHTML = `
+      <div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center shrink-0">
+        <span class="material-symbols-outlined text-white text-[16px]">smart_toy</span>
+      </div>
+      <div class="bg-white/40 backdrop-blur-md rounded-2xl rounded-tl-sm px-4 py-3 glass-inner-border">
+        <div class="flex gap-1.5 items-center h-5">
+          <div class="w-2 h-2 bg-on-surface-variant rounded-full dot-1"></div>
+          <div class="w-2 h-2 bg-on-surface-variant rounded-full dot-2"></div>
+          <div class="w-2 h-2 bg-on-surface-variant rounded-full dot-3"></div>
+        </div>
+      </div>`;
+    msgs.appendChild(typing);
+    msgs.scrollTop = msgs.scrollHeight;
+  }
+
+  function hideChatTyping() {
+    document.getElementById('chat-typing')?.remove();
+  }
+
+  function renderChat() {
+    hideChatTyping();
+    const msgs = document.getElementById('chat-messages');
+    if (!msgs) return;
+    msgs.innerHTML = '';
+
+    if (state.chatHistory.length === 0) {
+      msgs.innerHTML = `
+        <div class="flex flex-col items-center justify-center h-full gap-4 text-center py-8">
+          <div class="w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center">
+            <span class="material-symbols-outlined text-primary text-[32px]">smart_toy</span>
+          </div>
+          <div>
+            <p class="font-headline-md text-primary text-xl">Hallo, ${state.greetingName}</p>
+            <p class="font-body-md text-on-surface-variant mt-1">Wie kann ich Ihnen heute helfen?</p>
+          </div>
+        </div>`;
+      return;
+    }
+
+    state.chatHistory.forEach(msg => {
+      const isUser = msg.role === 'user';
+      const text = msg.parts?.[0]?.text || '';
+      const clean = text.replace(/\[AKTION:[^\]]+\]/g, '').trim();
+
+      const el = document.createElement('div');
+      el.className = isUser
+        ? 'flex justify-end'
+        : 'flex items-start gap-3';
+
+      if (isUser) {
+        el.innerHTML = `<div class="bg-primary text-on-primary rounded-2xl rounded-tr-sm px-4 py-3 max-w-[80%] font-body-md">${escHtml(clean)}</div>`;
+      } else {
+        el.innerHTML = `
+          <div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center shrink-0">
+            <span class="material-symbols-outlined text-white text-[16px]">smart_toy</span>
+          </div>
+          <div class="bg-white/40 backdrop-blur-md rounded-2xl rounded-tl-sm px-4 py-3 glass-inner-border max-w-[80%] font-body-md text-on-surface">
+            ${formatMarkdown(clean)}
+          </div>`;
+      }
+      msgs.appendChild(el);
+    });
+
+    msgs.scrollTop = msgs.scrollHeight;
+  }
+
+  // ─── DAILY SUMMARY ───────────────────────────────────────
+  async function generateDailySummary() {
+    const el = document.getElementById('briefing-content');
+    el.innerHTML = `
+      <div class="flex items-center gap-3">
+        <div class="flex gap-1 items-center">
+          <div class="w-2 h-2 bg-on-surface-variant/60 rounded-full dot-1"></div>
+          <div class="w-2 h-2 bg-on-surface-variant/60 rounded-full dot-2"></div>
+          <div class="w-2 h-2 bg-on-surface-variant/60 rounded-full dot-3"></div>
+        </div>
+        <span class="text-on-surface-variant/60 italic font-body-md">Erstelle Ihre Zusammenfassung...</span>
+      </div>`;
+
+    try {
+      const prompt = `Erstellen Sie eine motivierende und strukturierte Tages-Zusammenfassung für ${state.greetingName}. Beschreiben Sie den heutigen Tag in 2-3 Sätzen, nennen Sie die wichtigsten Prioritäten und geben Sie eine positive Motivation. Halten Sie es kurz und prägnant.`;
+      const summary = await callAI(prompt, []);
+      const clean = summary.replace(/\[AKTION:[^\]]+\]/g, '').trim();
+      el.innerHTML = `<p class="font-body-md text-on-surface leading-relaxed">${escHtml(clean)}</p>`;
+    } catch(e) {
+      if (e.message === 'NO_API_KEY') {
+        el.innerHTML = `<p class="font-body-md text-on-surface-variant/60 italic">Bitte API-Schlüssel in den Einstellungen konfigurieren.</p>`;
+      } else {
+        el.innerHTML = `<p class="font-body-md text-error">Fehler: ${escHtml(e.message)}</p>`;
+      }
+    }
+  }
+
+  // ─── WEEKLY PLAN ─────────────────────────────────────────
+  async function generateWeeklyPlan() {
+    const btn = document.querySelector('[onclick="App.generateWeeklyPlan()"]');
+    if (btn) btn.disabled = true;
+    toast('Wochenplan wird erstellt...');
+
+    try {
+      const prompt = `Erstellen Sie einen detaillierten Wochenplan für ${state.greetingName}.
+Für jeden Wochentag (Montag bis Sonntag) erstellen Sie 2-3 konkrete Aufgaben oder Aktivitäten basierend auf den aktuellen Projekten.
+Antworten Sie im exakten JSON-Format:
+{"Montag":["Aufgabe 1","Aufgabe 2","Aufgabe 3"],"Dienstag":["..."],...}
+Nur JSON, kein weiterer Text.`;
+
+      const response = await callAI(prompt, []);
+      const jsonMatch = response.match(/\{[\s\S]*\}/);
+      if (jsonMatch) {
+        state.weeklyPlan = JSON.parse(jsonMatch[0]);
+        save();
+        renderWeeklyPlan();
+        toast('✓ Wochenplan erstellt!');
+      }
+    } catch(e) {
+      toast(e.message === 'NO_API_KEY' ? 'API-Schlüssel fehlt' : 'Fehler beim Erstellen');
+    }
+    if (btn) btn.disabled = false;
+  }
+
+  function renderWeeklyPlan() {
+    const grid = document.getElementById('weekly-grid');
+    if (!grid) return;
+    const days = ['Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag', 'Samstag', 'Sonntag'];
+    const today = new Date().toLocaleDateString('de-DE', { weekday: 'long' });
+
+    grid.innerHTML = days.map(day => {
+      const isToday = today === day;
+      const tasks = state.weeklyPlan[day] || [];
+      return `
+        <div class="${isToday ? 'bg-white/30' : 'bg-white/10'} backdrop-blur-[40px] rounded-[2rem] p-5 glass-inner-border shadow-[0_0_30px_rgba(255,255,255,0.5)] transition-all duration-300">
+          <div class="flex items-center justify-between mb-4">
+            <h3 class="font-label-md text-label-md font-bold ${isToday ? 'text-primary' : 'text-on-surface-variant'}">${day}</h3>
+            ${isToday ? '<span class="text-[10px] bg-primary text-on-primary px-2 py-0.5 rounded-full font-bold">HEUTE</span>' : ''}
+          </div>
+          <div class="flex flex-col gap-2">
+            ${tasks.length ? tasks.map(t => `
+              <div class="bg-white/40 rounded-xl p-2.5 glass-inner-border flex items-start gap-2">
+                <div class="w-1.5 h-1.5 rounded-full bg-primary mt-1.5 shrink-0"></div>
+                <span class="font-label-md text-label-md text-on-surface">${escHtml(t)}</span>
+              </div>`).join('') : `
+              <button onclick="App.addDayTask('${day}')" class="w-full py-3 rounded-xl border border-dashed border-white/40 text-on-surface-variant/50 font-label-sm text-label-sm hover:bg-white/20 transition-colors flex items-center justify-center gap-1">
+                <span class="material-symbols-outlined text-[14px]">add</span> Hinzufügen
+              </button>`}
+          </div>
+        </div>`;
+    }).join('');
+  }
+
+  function addDayTask(day) {
+    const task = prompt(`Aufgabe für ${day}:`);
+    if (!task) return;
+    if (!state.weeklyPlan[day]) state.weeklyPlan[day] = [];
+    state.weeklyPlan[day].push(task);
+    save();
+    renderWeeklyPlan();
+  }
+
+  // ─── KANBAN ───────────────────────────────────────────────
+  function renderKanban() {
+    const cols = ['backlog', 'inProgress', 'done'];
+    cols.forEach(col => {
+      const container = document.getElementById('cards-' + col);
+      const counter = document.getElementById('count-' + col);
+      if (!container) return;
+      const tasks = state.tasks[col] || [];
+      counter.textContent = tasks.length;
+      container.innerHTML = tasks.map(t => renderTaskCard(t, col)).join('');
+    });
+  }
+
+  function renderTaskCard(task, col) {
+    const isDone = col === 'done';
+    const priorityClass = { hoch: 'priority-hoch', mittel: 'priority-mittel', niedrig: 'priority-niedrig' }[task.priority] || 'priority-mittel';
+    const priorityIcon = { hoch: 'arrow_upward', mittel: 'horizontal_rule', niedrig: 'arrow_downward' }[task.priority] || 'horizontal_rule';
+    const priorityLabel = { hoch: 'Hoch', mittel: 'Mittel', niedrig: 'Niedrig' }[task.priority] || 'Mittel';
+    const tagCls = task.tag ? `tag-${task.tag.toLowerCase()}` : 'tag-default';
+
+    if (isDone) {
+      return `<article class="bg-white/40 backdrop-blur-md rounded-2xl p-5 glass-inner-border shadow-[0_0_15px_rgba(255,255,255,0.5)] flex flex-col gap-3">
+        <div class="flex justify-between items-start gap-4">
+          <h3 class="font-body-md text-body-md font-semibold text-on-surface-variant line-through decoration-on-surface-variant/30">${escHtml(task.title)}</h3>
+          <div class="flex items-center gap-1">
+            <button onclick="App.moveTask('${task.id}','done','inProgress')" title="Zurück" class="text-on-surface-variant hover:text-primary transition-colors p-1">
+              <span class="material-symbols-outlined text-[16px]">undo</span>
+            </button>
+            <button onclick="App.deleteTask('${task.id}','done')" class="text-on-surface-variant hover:text-error transition-colors p-1">
+              <span class="material-symbols-outlined text-[16px]">delete</span>
+            </button>
+            <span class="material-symbols-outlined text-primary text-[20px]">check_circle</span>
+          </div>
+        </div>
+      </article>`;
+    }
+
+    return `<article draggable="true"
+      ondragstart="App.onDragStart(event,'${task.id}','${col}')"
+      ondragend="App.onDragEnd(event)"
+      class="bg-white/80 backdrop-blur-2xl rounded-[2rem] p-6 glass-inner-border shadow-[0_0_20px_rgba(255,255,255,0.6)] hover:-translate-y-1 hover:shadow-[0_0_30px_rgba(255,255,255,0.8)] transition-all duration-500 cursor-pointer flex flex-col gap-4">
+      <div class="flex justify-between items-start gap-4">
+        <h3 class="font-body-md text-body-md font-semibold text-primary">${escHtml(task.title)}</h3>
+        <div class="flex items-center gap-1 shrink-0">
+          <button onclick="App.completeTask('${task.id}','${col}')" title="Erledigt" class="text-on-surface-variant hover:text-primary transition-colors">
+            <span class="material-symbols-outlined text-[20px]">check_circle</span>
+          </button>
+          <button onclick="App.deleteTask('${task.id}','${col}')" title="Löschen" class="text-on-surface-variant hover:text-error transition-colors">
+            <span class="material-symbols-outlined text-[18px]">delete</span>
+          </button>
+        </div>
+      </div>
+      ${task.desc ? `<p class="font-label-md text-label-md text-on-surface-variant">${escHtml(task.desc)}</p>` : ''}
+      ${task.progress !== undefined ? `
+        <div class="w-full flex flex-col gap-1 mt-2">
+          <div class="flex justify-between font-label-sm text-label-sm text-on-surface-variant">
+            <span>Fortschritt</span><span>${task.progress}%</span>
+          </div>
+          <div class="h-2 w-full bg-black/5 rounded-full overflow-hidden">
+            <div class="h-full bg-primary/80 rounded-full transition-all duration-1000" style="width:${task.progress}%"></div>
+          </div>
+        </div>` : ''}
+      <div class="flex flex-wrap items-center gap-2 mt-2">
+        ${task.tag ? `<span class="font-label-sm text-label-sm px-2.5 py-1 rounded-full ${tagCls}">${escHtml(task.tag)}</span>` : ''}
+        ${task.priority ? `<span class="${priorityClass} font-label-sm text-label-sm px-2.5 py-1 rounded-full flex items-center gap-1">
+          <span class="material-symbols-outlined text-[14px]">${priorityIcon}</span> ${priorityLabel}
+        </span>` : ''}
+        ${task.date ? `<span class="text-${task.date === 'Heute' ? 'error' : 'on-surface-variant'} font-label-sm text-label-sm flex items-center gap-1 ml-auto">
+          <span class="material-symbols-outlined text-[14px]">schedule</span> ${escHtml(task.date)}
+        </span>` : ''}
+      </div>
+    </article>`;
+  }
+
+  // Drag and drop
+  function onDragStart(e, taskId, col) {
+    state.draggedTask = taskId;
+    state.draggedFrom = col;
+    e.target.classList.add('dragging');
+    e.dataTransfer.effectAllowed = 'move';
+  }
+  function onDragEnd(e) { e.target.classList.remove('dragging'); }
+  function onDragOver(e, col) {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
+    document.getElementById('col-' + col)?.classList.add('drop-target');
+  }
+  function onDragLeave(e) {
+    document.querySelectorAll('.drop-target').forEach(el => el.classList.remove('drop-target'));
+  }
+  function onDrop(e, targetCol) {
+    e.preventDefault();
+    document.querySelectorAll('.drop-target').forEach(el => el.classList.remove('drop-target'));
+    if (!state.draggedTask || state.draggedFrom === targetCol) return;
+    moveTask(state.draggedTask, state.draggedFrom, targetCol);
+    state.draggedTask = null;
+    state.draggedFrom = null;
+  }
+
+  function moveTask(taskId, fromCol, toCol) {
+    const idx = state.tasks[fromCol].findIndex(t => t.id === taskId);
+    if (idx === -1) return;
+    const [task] = state.tasks[fromCol].splice(idx, 1);
+    state.tasks[toCol].push(task);
+    save();
+    renderKanban();
+    toast(`Aufgabe nach "${colLabel(toCol)}" verschoben`);
+  }
+
+  function completeTask(taskId, col) {
+    moveTask(taskId, col, 'done');
+  }
+
+  function deleteTask(taskId, col) {
+    state.tasks[col] = state.tasks[col].filter(t => t.id !== taskId);
+    save();
+    renderKanban();
+    toast('Aufgabe gelöscht');
+  }
+
+  function colLabel(col) {
+    return { backlog: 'Backlog', inProgress: 'In Arbeit', done: 'Abgeschlossen' }[col] || col;
+  }
+
+  // Add task modal
+  function openAddTask(col) {
+    state.addTaskColumn = col;
+    state.editingTaskId = null;
+    document.getElementById('add-task-title').textContent = 'Aufgabe hinzufügen – ' + colLabel(col);
+    document.getElementById('task-title-input').value = '';
+    document.getElementById('task-desc-input').value = '';
+    document.getElementById('task-tag-input').value = '';
+    document.getElementById('task-priority-input').value = 'mittel';
+    document.getElementById('task-date-input').value = '';
+    document.getElementById('add-task-modal').classList.remove('hidden');
+    setTimeout(() => document.getElementById('task-title-input').focus(), 100);
+  }
+
+  function closeAddTask() {
+    document.getElementById('add-task-modal').classList.add('hidden');
+  }
+
+  function saveTask() {
+    const title = document.getElementById('task-title-input').value.trim();
+    if (!title) { toast('Bitte Titel eingeben'); return; }
+
+    const task = {
+      id: state.editingTaskId || 'task_' + Date.now(),
+      title,
+      desc: document.getElementById('task-desc-input').value.trim(),
+      tag: document.getElementById('task-tag-input').value.trim() || null,
+      priority: document.getElementById('task-priority-input').value,
+      date: document.getElementById('task-date-input').value.trim() || null,
+    };
+
+    if (state.editingTaskId) {
+      const col = Object.keys(state.tasks).find(c => state.tasks[c].some(t => t.id === state.editingTaskId));
+      if (col) {
+        const idx = state.tasks[col].findIndex(t => t.id === state.editingTaskId);
+        state.tasks[col][idx] = { ...state.tasks[col][idx], ...task };
+      }
+    } else {
+      state.tasks[state.addTaskColumn].push(task);
+    }
+
+    save();
+    renderKanban();
+    closeAddTask();
+    toast('✓ Aufgabe gespeichert');
+  }
+
+  // ─── WEEKLY GOALS ─────────────────────────────────────────
+  function renderGoals() {
+    const container = document.getElementById('goals-container');
+    if (!container) return;
+    container.innerHTML = state.weeklyGoals.map((g, i) => `
+      <div class="bg-white/40 backdrop-blur-md rounded-2xl p-4 glass-inner-border flex items-center gap-3 cursor-pointer hover:bg-white/60 transition-colors group"
+           onclick="App.toggleGoal('${g.id}')">
+        <div class="w-5 h-5 rounded-full flex items-center justify-center shrink-0 transition-all ${g.done ? 'bg-primary' : 'border border-primary'}">
+          ${g.done ? '<span class="material-symbols-outlined text-white text-[14px]">check</span>' : ''}
+        </div>
+        <span class="font-body-md text-on-surface font-medium flex-1 ${g.done ? 'line-through decoration-on-surface/30' : ''}">${escHtml(g.text)}</span>
+        <button onclick="event.stopPropagation(); App.deleteGoal('${g.id}')" class="opacity-0 group-hover:opacity-100 text-on-surface-variant hover:text-error transition-all p-1">
+          <span class="material-symbols-outlined text-[16px]">close</span>
+        </button>
+      </div>`).join('');
+  }
+
+  function toggleGoal(id) {
+    const g = state.weeklyGoals.find(g => g.id === id);
+    if (g) g.done = !g.done;
+    save();
+    renderGoals();
+  }
+
+  function deleteGoal(id) {
+    state.weeklyGoals = state.weeklyGoals.filter(g => g.id !== id);
+    save();
+    renderGoals();
+  }
+
+  function addWeeklyGoal() {
+    document.getElementById('goal-input').value = '';
+    document.getElementById('goal-modal').classList.remove('hidden');
+    setTimeout(() => document.getElementById('goal-input').focus(), 100);
+  }
+
+  function saveGoal() {
+    const text = document.getElementById('goal-input').value.trim();
+    if (!text) return;
+    state.weeklyGoals.push({ id: 'g_' + Date.now(), text, done: false });
+    save();
+    renderGoals();
+    document.getElementById('goal-modal').classList.add('hidden');
+    toast('✓ Ziel hinzugefügt');
+  }
+
+  // ─── TODOS ────────────────────────────────────────────────
+  function addTodo() {
+    const input = document.getElementById('todo-input');
+    const text = input.value.trim();
+    if (!text) return;
+    addTodoItem(text);
+    input.value = '';
+    renderTodos();
+    toast('✓ To-Do hinzugefügt');
+  }
+
+  function addTodoItem(text) {
+    state.todos.push({ id: 'todo_' + Date.now(), text, done: false, created: new Date().toISOString() });
+    save();
+  }
+
+  function toggleTodo(id) {
+    const todo = state.todos.find(t => t.id === id);
+    if (todo) todo.done = !todo.done;
+    save();
+    renderTodos();
+  }
+
+  function deleteTodo(id) {
+    state.todos = state.todos.filter(t => t.id !== id);
+    save();
+    renderTodos();
+  }
+
+  function setTodoFilter(filter) {
+    state.todoFilter = filter;
+    document.querySelectorAll('.todo-filter-btn').forEach(b => {
+      const isActive = b.getAttribute('data-filter') === filter;
+      b.classList.toggle('bg-primary', isActive);
+      b.classList.toggle('text-on-primary', isActive);
+      b.classList.toggle('bg-white/20', !isActive);
+      b.classList.toggle('text-on-surface-variant', !isActive);
+    });
+    renderTodos();
+  }
+
+  function renderTodos() {
+    const list = document.getElementById('todo-list');
+    if (!list) return;
+    const filtered = state.todos.filter(t => {
+      if (state.todoFilter === 'open') return !t.done;
+      if (state.todoFilter === 'done') return t.done;
+      return true;
+    });
+
+    if (!filtered.length) {
+      list.innerHTML = `<div class="text-center py-12 text-on-surface-variant/60 font-body-md">
+        ${state.todoFilter === 'done' ? 'Noch nichts erledigt.' : 'Keine offenen Aufgaben. 🎉'}
+      </div>`;
+      return;
+    }
+
+    list.innerHTML = filtered.map(todo => `
+      <div class="bg-white/20 backdrop-blur-md rounded-[1.5rem] p-4 glass-inner-border flex items-center gap-4 group hover:bg-white/40 transition-colors">
+        <button onclick="App.toggleTodo('${todo.id}')" class="w-6 h-6 rounded-full flex items-center justify-center shrink-0 transition-all ${todo.done ? 'bg-primary' : 'border-2 border-on-surface-variant/40 hover:border-primary'}">
+          ${todo.done ? '<span class="material-symbols-outlined text-white text-[14px]">check</span>' : ''}
+        </button>
+        <span class="flex-1 font-body-md text-on-surface ${todo.done ? 'line-through text-on-surface-variant' : ''}">${escHtml(todo.text)}</span>
+        <div class="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+          <button onclick="App.deleteTodo('${todo.id}')" class="p-1.5 text-on-surface-variant hover:text-error transition-colors rounded-lg hover:bg-error/10">
+            <span class="material-symbols-outlined text-[18px]">delete</span>
+          </button>
+        </div>
+      </div>`).join('');
+  }
+
+  async function generateTodosFromAI() {
+    toast('KI erstellt Aufgabenvorschläge...');
+    const provider = resolveProvider();
+
+    // Offline fallback: generate from existing tasks
+    if (provider === 'offline') {
+      const suggestions = [];
+      state.tasks.backlog.slice(0, 2).forEach(t => suggestions.push(`"${t.title}" vorbereiten`));
+      state.tasks.inProgress.slice(0, 2).forEach(t => suggestions.push(`"${t.title}" fortsetzen`));
+      suggestions.push('E-Mails beantworten');
+      suggestions.push('Tagesplanung überprüfen');
+      if (suggestions.length > 5) suggestions.length = 5;
+      suggestions.forEach(text => addTodoItem(text));
+      renderTodos();
+      toast(`✓ ${suggestions.length} To-Dos aus Projekten generiert`);
+      return;
+    }
+
+    try {
+      const prompt = 'Erstellen Sie 5 sinnvolle To-Do-Aufgaben für heute basierend auf meinen Projekten. Antworten Sie nur mit einem JSON-Array von Strings: ["Aufgabe 1", "Aufgabe 2", ...]';
+      const response = await callAI(prompt, []);
+      const match = response.match(/\[[\s\S]*\]/);
+      if (match) {
+        const items = JSON.parse(match[0]);
+        items.forEach(text => addTodoItem(text));
+        renderTodos();
+        toast(`✓ ${items.length} To-Dos hinzugefügt`);
+      } else {
+        // Parse line by line if no JSON
+        const lines = response.split('\n').filter(l => l.trim().length > 3).slice(0, 5);
+        lines.forEach(l => addTodoItem(l.replace(/^[\d\.\-\*•]+\s*/, '').trim()));
+        renderTodos();
+        toast(`✓ ${lines.length} To-Dos hinzugefügt`);
+      }
+    } catch(e) {
+      toast('Fehler: ' + e.message);
+    }
+  }
+
+  // ─── NOTES ────────────────────────────────────────────────
+  function saveNote() {
+    const ta = document.getElementById('note-textarea');
+    state.quickNote = ta.value;
+    save();
+    const ind = document.getElementById('note-saved-indicator');
+    ind.classList.remove('hidden');
+    setTimeout(() => ind.classList.add('hidden'), 2000);
+    toast('✓ Notiz gespeichert');
+  }
+
+  async function processNoteWithAI() {
+    const ta = document.getElementById('note-textarea');
+    const text = ta.value.trim();
+    if (!text) { toast('Bitte zuerst eine Notiz eingeben'); return; }
+    toast('KI verarbeitet Notiz...');
+    try {
+      const prompt = `Analysieren Sie diese Notiz und extrahieren Sie Aufgaben, Ideen und wichtige Punkte. Erstellen Sie eine strukturierte Zusammenfassung:\n\n"${text}"`;
+      const response = await callAI(prompt, []);
+      const actions = parseActions(response);
+      executeActions(actions);
+      const clean = response.replace(/\[AKTION:[^\]]+\]/g, '').trim();
+      state.chatHistory.push(
+        { role: 'user', parts: [{ text: `Notiz verarbeiten: ${text}` }] },
+        { role: 'model', parts: [{ text: response }] }
+      );
+      save();
+      renderChat();
+      switchView('aichat');
+      toast('✓ Notiz wurde von KI verarbeitet');
+    } catch(e) {
+      toast(e.message === 'NO_API_KEY' ? 'API-Schlüssel fehlt' : 'Fehler: ' + e.message);
+    }
+  }
+
+  // ─── SETTINGS ─────────────────────────────────────────────
+  function onProviderChange(val) {
+    document.getElementById('chrome-ai-status').classList.add('hidden');
+    document.getElementById('webllm-section').classList.add('hidden');
+    document.getElementById('gemini-key-section').classList.add('hidden');
+    document.getElementById('offline-info').classList.add('hidden');
+
+    if (val === 'chrome' || val === 'auto') {
+      const el = document.getElementById('chrome-ai-status');
+      el.classList.remove('hidden');
+      detectChromeAI().then(avail => {
+        document.getElementById('chrome-ai-icon').textContent = avail ? 'check_circle' : 'cancel';
+        document.getElementById('chrome-ai-icon').style.color = avail ? 'green' : '#ba1a1a';
+        document.getElementById('chrome-ai-msg').textContent = avail
+          ? '✓ Chrome Browser-KI verfügbar (Gemini Nano)'
+          : '✗ Nicht verfügbar. Benötigt Chrome 127+ mit aktiviertem AI-Flag.';
+      });
+    }
+    if (val === 'webllm') {
+      document.getElementById('webllm-section').classList.remove('hidden');
+      document.getElementById('webllm-section').style.display = 'flex';
+    }
+    if (val === 'gemini') {
+      document.getElementById('gemini-key-section').classList.remove('hidden');
+      document.getElementById('gemini-key-section').style.display = 'flex';
+    }
+    if (val === 'offline') {
+      document.getElementById('offline-info').classList.remove('hidden');
+    }
+  }
+
+  function openSettings() {
+    document.getElementById('settings-name').value = state.userName;
+    const apiKeyEl = document.getElementById('settings-apikey');
+    if (apiKeyEl) apiKeyEl.value = state.apiKey;
+    document.getElementById('settings-greeting').value = state.greetingName;
+    document.getElementById('settings-voice').value = state.voiceName;
+    document.getElementById('settings-provider').value = state.aiProvider;
+    onProviderChange(state.aiProvider);
+    document.getElementById('settings-modal').classList.remove('hidden');
+  }
+
+  function closeSettings() {
+    document.getElementById('settings-modal').classList.add('hidden');
+  }
+
+  function saveSettings() {
+    state.userName = document.getElementById('settings-name').value.trim() || 'Julian';
+    const apiKeyEl = document.getElementById('settings-apikey');
+    if (apiKeyEl) state.apiKey = apiKeyEl.value.trim();
+    state.greetingName = document.getElementById('settings-greeting').value.trim() || 'Sie';
+    state.voiceName = document.getElementById('settings-voice').value;
+    state.aiProvider = document.getElementById('settings-provider').value;
+
+    const initials = state.userName.split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2);
+    document.getElementById('avatar-display').textContent = initials;
+
+    save();
+    closeSettings();
+
+    const providerNames = { auto: 'Automatisch', chrome: 'Chrome KI', webllm: 'WebLLM', gemini: 'Gemini API', offline: 'Offline-Modus' };
+    toast(`✓ Einstellungen gespeichert · KI: ${providerNames[state.aiProvider] || state.aiProvider}`);
+    renderChat();
+  }
+
+  function resetApp() {
+    // Nur KI-Einstellungen zurücksetzen, Aufgaben/Todos bleiben
+    state.apiKey = '';
+    state.aiProvider = 'auto';
+    state.voiceName = 'browser';
+    state.chatHistory = [];
+    save();
+    closeSettings();
+    toast('✓ KI-Einstellungen zurückgesetzt – Offline-Modus aktiv', 3000);
+  }
+
+  function toggleApiKeyVisibility() {
+    const input = document.getElementById('settings-apikey');
+    const btn = input.nextElementSibling;
+    if (input.type === 'password') {
+      input.type = 'text';
+      btn.querySelector('.material-symbols-outlined').textContent = 'visibility_off';
+    } else {
+      input.type = 'password';
+      btn.querySelector('.material-symbols-outlined').textContent = 'visibility';
+    }
+  }
+
+  // ─── UTILS ────────────────────────────────────────────────
+  function escHtml(str) {
+    if (!str) return '';
+    return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+
+  function formatMarkdown(text) {
+    return escHtml(text)
+      .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+      .replace(/\*(.+?)\*/g, '<em>$1</em>')
+      .replace(/^- (.+)/gm, '• $1')
+      .replace(/\n/g, '<br>');
+  }
+
+  // ─── INIT ─────────────────────────────────────────────────
+  function init() {
+    load();
+
+    // Restore note
+    const ta = document.getElementById('note-textarea');
+    if (ta && state.quickNote) ta.value = state.quickNote;
+    ta?.addEventListener('input', () => { state.quickNote = ta.value; save(); });
+
+    // Restore avatar
+    const initials = state.userName.split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2);
+    document.getElementById('avatar-display').textContent = initials;
+
+    // Date display
+    const dateEl = document.getElementById('briefing-date');
+    if (dateEl) {
+      dateEl.textContent = new Date().toLocaleDateString('de-DE', { weekday: 'long', day: 'numeric', month: 'long' });
+    }
+
+    // Nav links
+    document.querySelectorAll('.nav-link').forEach(link => {
+      link.addEventListener('click', e => {
+        e.preventDefault();
+        switchView(link.getAttribute('data-view'));
+      });
+    });
+
+    // Keyboard shortcuts for modals
+    document.addEventListener('keydown', e => {
+      if (e.key === 'Escape') {
+        document.getElementById('voice-modal').classList.add('hidden');
+        document.getElementById('settings-modal').classList.add('hidden');
+        document.getElementById('add-task-modal').classList.add('hidden');
+        document.getElementById('goal-modal').classList.add('hidden');
+        stopListening();
+      }
+    });
+
+    // Click outside modal to close
+    ['voice-modal','settings-modal','add-task-modal','goal-modal'].forEach(id => {
+      document.getElementById(id)?.addEventListener('click', e => {
+        if (e.target.id === id) {
+          document.getElementById(id).classList.add('hidden');
+          if (id === 'voice-modal') stopListening();
+        }
+      });
+    });
+
+    renderKanban();
+    renderGoals();
+    renderTodos();
+    renderWeeklyPlan();
+    renderChat();
+
+    // Detect Chrome AI in background
+    detectChromeAI();
+
+    // Welcome message based on available AI
+    setTimeout(() => {
+      const provider = resolveProvider();
+      const providerMsg = {
+        chrome: '🌐 Chrome Browser-KI aktiv – kein API-Key nötig!',
+        webllm: '💻 Lokale KI aktiv',
+        gemini: `☁️ Gemini API aktiv`,
+        offline: '✍️ Offline-Modus – Einstellungen öffnen für KI-Optionen'
+      };
+      toast(providerMsg[provider] || `Guten Tag, ${state.greetingName}!`, 3500);
+    }, 1200);
+  }
+
+  // Public API
+  return {
+    switchView, openVoice, closeVoice, toggleListening, stopVoiceConversation,
+    generateDailySummary, generateWeeklyPlan, renderWeeklyPlan, addDayTask,
+    sendChat, quickChatAction, renderChat,
+    openAddTask, closeAddTask, saveTask,
+    moveTask, completeTask, deleteTask,
+    onDragStart, onDragEnd, onDragOver, onDragLeave, onDrop,
+    toggleGoal, deleteGoal, addWeeklyGoal, saveGoal,
+    addTodo, toggleTodo, deleteTodo, setTodoFilter, generateTodosFromAI,
+    saveNote, processNoteWithAI,
+    openSettings, closeSettings, saveSettings, toggleApiKeyVisibility,
+    onProviderChange, loadWebLLM, sendVoiceText, resetApp,
+    init
+  };
+})();
+
+document.addEventListener('DOMContentLoaded', () => App.init());
+</script>
+</body>
 </html>
