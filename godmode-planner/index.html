@@ -531,10 +531,11 @@ article:hover .drag-handle { opacity: 1; }
       </button>
     </div>
 
-    <!-- API Key warning -->
-    <p id="voice-api-warning" class="font-label-sm text-label-sm text-on-surface-variant/60 text-center hidden">
-      ⚠️ Kein API-Schlüssel. Bitte in den <button onclick="App.openSettings()" class="underline hover:text-primary">Einstellungen</button> konfigurieren.
-    </p>
+    <!-- Active AI provider badge -->
+    <div class="flex items-center justify-between w-full">
+      <span id="voice-provider-badge" class="font-label-sm text-label-sm text-on-surface-variant/70 bg-white/30 px-3 py-1 rounded-full glass-inner-border"></span>
+      <button onclick="App.openSettings()" class="font-label-sm text-label-sm text-on-surface-variant/60 hover:text-primary underline transition-colors">Einstellungen</button>
+    </div>
   </div>
 </div>
 
@@ -841,8 +842,14 @@ const App = (() => {
     const provider = resolveProvider();
 
     if (provider === 'gemini') return callGeminiAPI(userMessage, history);
-    if (provider === 'chrome') return callChromeAI(userMessage, history);
-    if (provider === 'webllm') return callWebLLMInference(userMessage, history);
+    if (provider === 'chrome') {
+      try { return await callChromeAI(userMessage, history); }
+      catch(e) { return callOfflineMode(userMessage); }
+    }
+    if (provider === 'webllm') {
+      try { return await callWebLLMInference(userMessage, history); }
+      catch(e) { return callOfflineMode(userMessage); }
+    }
     return callOfflineMode(userMessage);
   }
 
@@ -852,11 +859,15 @@ const App = (() => {
     if (p === 'chrome') { return state.chromeAIAvailable ? 'chrome' : 'offline'; }
     if (p === 'webllm') { return state.webLLMLoaded ? 'webllm' : 'offline'; }
     if (p === 'offline') return 'offline';
-    // auto: try chrome → webllm → gemini → offline
+    // auto: chrome → webllm → offline (Gemini NIE automatisch – erfordert Key)
     if (state.chromeAIAvailable) return 'chrome';
     if (state.webLLMLoaded) return 'webllm';
-    if (state.apiKey) return 'gemini';
     return 'offline';
+  }
+
+  function getActiveProviderLabel() {
+    const p = resolveProvider();
+    return { gemini: '☁️ Gemini API', chrome: '🌐 Chrome KI', webllm: '💻 Lokale KI', offline: '✍️ Offline-Modus' }[p] || 'Offline';
   }
 
   // ─── GEMINI API ──────────────────────────────────────────
@@ -1250,8 +1261,8 @@ Notiz: ${state.quickNote || 'keine'}`;
   function openVoice() {
     const modal = document.getElementById('voice-modal');
     modal.classList.remove('hidden');
-    const warn = document.getElementById('voice-api-warning');
-    warn.classList.toggle('hidden', !!state.apiKey);
+    const badge = document.getElementById('voice-provider-badge');
+    if (badge) badge.textContent = getActiveProviderLabel();
     updateVoiceUI('idle');
   }
 
@@ -1368,12 +1379,21 @@ Notiz: ${state.quickNote || 'keine'}`;
 
       if (state.currentView === 'aichat') renderChat();
     } catch(e) {
-      const msg = e.message === 'NO_API_KEY'
-        ? 'Kein API-Schlüssel. Bitte in den Einstellungen konfigurieren.'
-        : 'Fehler: ' + e.message;
-      document.getElementById('voice-transcript').textContent = msg;
-      updateVoiceUI('idle');
-      toast('Fehler: ' + e.message);
+      // Graceful fallback to offline if any AI fails
+      try {
+        const offlineResp = callOfflineMode(transcript);
+        const respContainer = document.getElementById('voice-response-container');
+        const respEl = document.getElementById('voice-response');
+        respContainer.classList.remove('hidden');
+        respEl.textContent = offlineResp;
+        updateVoiceUI('speaking');
+        await speakText(offlineResp);
+        updateVoiceUI('idle');
+        if (state.voiceConversationActive) setTimeout(() => { if (state.voiceConversationActive) startListening(); }, 800);
+      } catch(e2) {
+        document.getElementById('voice-transcript').textContent = 'Fehler: ' + e.message;
+        updateVoiceUI('idle');
+      }
     }
   }
 
@@ -1436,14 +1456,15 @@ Notiz: ${state.quickNote || 'keine'}`;
       renderChat();
     } catch(e) {
       hideChatTyping();
-      if (e.message === 'NO_API_KEY') {
-        state.chatHistory.push({ role: 'model', parts: [{ text: '⚠️ Kein API-Schlüssel konfiguriert. Bitte in den Einstellungen eingeben.' }] });
-        renderChat();
-        toast('Bitte API-Schlüssel in Einstellungen eingeben');
-      } else {
+      // Fallback to offline mode
+      try {
+        const userMsg = state.chatHistory[state.chatHistory.length - 1]?.parts?.[0]?.text || '';
+        const offlineResp = callOfflineMode(userMsg);
+        state.chatHistory.push({ role: 'model', parts: [{ text: offlineResp }] });
+      } catch(e2) {
         state.chatHistory.push({ role: 'model', parts: [{ text: 'Fehler: ' + e.message }] });
-        renderChat();
       }
+      renderChat();
     }
   }
 
