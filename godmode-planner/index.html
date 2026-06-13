@@ -10,6 +10,11 @@
 <script type="module">
   import * as WebLLM from 'https://esm.run/@mlc-ai/web-llm';
   window._WebLLM = WebLLM;
+  // Transformers.js für Whisper Offline-STT
+  import { pipeline, env } from 'https://cdn.jsdelivr.net/npm/@xenova/transformers@2.17.2';
+  env.allowLocalModels = false;
+  env.useBrowserCache = true;
+  window._Transformers = { pipeline };
 </script>
 <script id="tailwind-config">
 tailwind.config = {
@@ -611,20 +616,38 @@ article:hover .drag-handle { opacity: 1; }
 
       <!-- Offline mode info -->
       <div id="offline-info" class="hidden bg-white/30 rounded-xl p-3 glass-inner-border font-label-sm text-label-sm text-on-surface-variant">
-        ✍️ Sprachbefehle funktionieren lokal (To-Dos hinzufügen, Aufgaben verwalten, Zusammenfassungen) – ohne Internetverbindung.
+        ✍️ Intelligente Offline-KI: versteht komplexe Befehle auf Deutsch – vollständig ohne Internet.
       </div>
+    </div>
+
+    <!-- Offline Voice (Whisper STT) -->
+    <div class="flex flex-col gap-2">
+      <label class="font-label-md text-label-md text-on-surface-variant">Spracheingabe (offline)</label>
+      <div class="bg-white/30 rounded-xl p-3 glass-inner-border flex items-center justify-between gap-3">
+        <div class="flex items-center gap-2 flex-1">
+          <span id="whisper-status-icon" class="material-symbols-outlined text-[18px] text-on-surface-variant">hearing</span>
+          <div>
+            <p id="whisper-status-label" class="font-label-md text-label-md text-on-surface">Whisper offline STT</p>
+            <p id="whisper-status-sub" class="font-label-sm text-label-sm text-on-surface-variant/60">~150MB einmalig · danach kein Internet nötig</p>
+          </div>
+        </div>
+        <button onclick="App.loadWhisper()" id="whisper-load-btn" class="px-3 py-1.5 bg-primary text-on-primary rounded-lg font-label-sm text-label-sm hover:opacity-80 transition-opacity whitespace-nowrap">
+          Laden
+        </button>
+      </div>
+      <p class="font-label-sm text-label-sm text-on-surface-variant/50">Ohne Whisper: Web Speech API (Internet nötig) oder Textfeld im Voice-Modal</p>
     </div>
 
     <!-- Voice Selection -->
     <div class="flex flex-col gap-2">
       <label class="font-label-md text-label-md text-on-surface-variant">Stimme des Assistenten</label>
       <select id="settings-voice" class="bg-white/50 backdrop-blur-md rounded-xl px-4 py-3 glass-inner-border text-body-md font-body-md text-on-surface focus:outline-none focus:ring-2 focus:ring-primary/20">
-        <option value="Aoede">Aoede (weiblich, warm)</option>
-        <option value="Kore">Kore (weiblich, klar)</option>
-        <option value="Charon">Charon (männlich, tief)</option>
-        <option value="Fenrir">Fenrir (männlich, kräftig)</option>
-        <option value="Puck">Puck (männlich, lebendig)</option>
-        <option value="browser">Browser-Stimme (kein API nötig)</option>
+        <option value="browser">🌐 Browser-Stimme (offline, kein API nötig)</option>
+        <option value="Aoede">Aoede – Gemini TTS (braucht API)</option>
+        <option value="Kore">Kore – Gemini TTS (braucht API)</option>
+        <option value="Charon">Charon – Gemini TTS (braucht API)</option>
+        <option value="Fenrir">Fenrir – Gemini TTS (braucht API)</option>
+        <option value="Puck">Puck – Gemini TTS (braucht API)</option>
       </select>
     </div>
 
@@ -753,6 +776,10 @@ const App = (() => {
     webLLMEngine: null,
     webLLMLoaded: false,
     chromeAIAvailable: null,
+    whisperPipeline: null,
+    whisperLoaded: false,
+    mediaRecorder: null,
+    audioChunks: [],
   };
 
   // ─── PERSISTENCE ─────────────────────────────────────────
@@ -1006,118 +1033,390 @@ const App = (() => {
     return reply.choices?.[0]?.message?.content || '';
   }
 
-  // ─── OFFLINE / SMART TEMPLATE MODE ───────────────────────
+  // ─── WHISPER OFFLINE STT ─────────────────────────────────
+  async function loadWhisper() {
+    const T = window._Transformers;
+    if (!T) { toast('Transformers.js lädt noch, bitte kurz warten...'); return; }
+    if (state.whisperLoaded) { toast('Whisper bereits geladen ✓'); return; }
+
+    document.getElementById('whisper-load-btn').disabled = true;
+    document.getElementById('whisper-load-btn').textContent = 'Lädt...';
+    document.getElementById('whisper-status-sub').textContent = 'Wird heruntergeladen (~150MB)...';
+
+    try {
+      state.whisperPipeline = await T.pipeline(
+        'automatic-speech-recognition',
+        'Xenova/whisper-tiny',
+        {
+          progress_callback: (p) => {
+            if (p.status === 'downloading') {
+              const pct = p.total ? Math.round((p.loaded / p.total) * 100) : 0;
+              document.getElementById('whisper-status-sub').textContent = `Herunterladen: ${pct}% (${Math.round((p.loaded||0)/1024/1024)}MB)`;
+            }
+          }
+        }
+      );
+      state.whisperLoaded = true;
+      document.getElementById('whisper-status-icon').textContent = 'check_circle';
+      document.getElementById('whisper-status-icon').style.color = 'green';
+      document.getElementById('whisper-status-label').textContent = '✓ Whisper bereit – vollständig offline';
+      document.getElementById('whisper-status-sub').textContent = 'Sprache wird lokal erkannt, kein Internet nötig';
+      document.getElementById('whisper-load-btn').textContent = 'Geladen ✓';
+      toast('✓ Whisper geladen – Spracherkennung jetzt offline!');
+    } catch(e) {
+      document.getElementById('whisper-load-btn').disabled = false;
+      document.getElementById('whisper-load-btn').textContent = 'Erneut versuchen';
+      document.getElementById('whisper-status-sub').textContent = 'Fehler: ' + e.message;
+      toast('Whisper-Fehler: ' + e.message);
+    }
+  }
+
+  async function transcribeWithWhisper(audioBlob) {
+    if (!state.whisperPipeline) throw new Error('Whisper nicht geladen');
+    const url = URL.createObjectURL(audioBlob);
+    const result = await state.whisperPipeline(url, {
+      language: 'german',
+      task: 'transcribe',
+      chunk_length_s: 30,
+    });
+    URL.revokeObjectURL(url);
+    return result.text.trim();
+  }
+
+  async function startOfflineRecording() {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
+      state.audioChunks = [];
+
+      const mimeType = MediaRecorder.isTypeSupported('audio/webm') ? 'audio/webm' : 'audio/ogg';
+      state.mediaRecorder = new MediaRecorder(stream, { mimeType });
+
+      state.mediaRecorder.ondataavailable = e => { if (e.data.size > 0) state.audioChunks.push(e.data); };
+      state.mediaRecorder.onstop = async () => {
+        stream.getTracks().forEach(t => t.stop());
+        const blob = new Blob(state.audioChunks, { type: mimeType });
+        updateVoiceUI('thinking');
+        document.getElementById('voice-transcript').textContent = 'Transkribiere...';
+        try {
+          const text = await transcribeWithWhisper(blob);
+          if (text && text.length > 1) {
+            document.getElementById('voice-transcript').textContent = text;
+            await handleVoiceInput(text);
+          } else {
+            document.getElementById('voice-transcript').textContent = 'Nichts erkannt – bitte sprechen Sie deutlich.';
+            updateVoiceUI('idle');
+          }
+        } catch(e) {
+          document.getElementById('voice-transcript').textContent = 'Transkriptionsfehler: ' + e.message;
+          updateVoiceUI('idle');
+        }
+      };
+
+      state.mediaRecorder.start();
+      state.isListening = true;
+      state.voiceConversationActive = true;
+      updateVoiceUI('listening');
+      document.getElementById('voice-transcript').textContent = 'Ich höre zu... (Mikrofon klicken zum Stoppen)';
+    } catch(e) {
+      toast('Mikrofon-Fehler: ' + e.message);
+    }
+  }
+
+  function stopOfflineRecording() {
+    if (state.mediaRecorder && state.mediaRecorder.state !== 'inactive') {
+      state.mediaRecorder.stop();
+    }
+    state.isListening = false;
+  }
+
+  // ─── OFFLINE KI – VOLLSTÄNDIGE SPRACHVERARBEITUNG ────────
   function callOfflineMode(userMessage) {
-    const msg = userMessage.toLowerCase().trim();
-    const today = new Date().toLocaleDateString('de-DE', { weekday: 'long', day: 'numeric', month: 'long' });
-    const allTasks = [...state.tasks.backlog, ...state.tasks.inProgress];
-    const openTodos = state.todos.filter(t => !t.done);
+    const raw = userMessage.trim();
+    const msg = raw.toLowerCase();
+    const today = new Date().toLocaleDateString('de-DE', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+    const dayName = new Date().toLocaleDateString('de-DE', { weekday: 'long' });
     const name = state.greetingName;
+    const allActive = [...state.tasks.backlog, ...state.tasks.inProgress];
+    const openTodos = state.todos.filter(t => !t.done);
+    const doneTodos = state.todos.filter(t => t.done);
 
-    // Greetings
-    if (/^(hallo|hi|hey|guten morgen|guten tag|moin|servus|grüezi)/.test(msg)) {
-      const taskCount = allTasks.length;
-      const todoCount = openTodos.length;
-      return `Guten Tag, ${name}! Schön, dass Sie da sind. Heute ist ${today}.
+    // ── 1. BEGRÜSSUNG ─────────────────────────────────────
+    if (/^(hallo|hi\b|hey\b|guten\s+morgen|guten\s+tag|guten\s+abend|moin|servus|grüezi|guten\s+abend|na\b|yo\b|ey\b)/i.test(msg)) {
+      const hour = new Date().getHours();
+      const greeting = hour < 12 ? 'Guten Morgen' : hour < 18 ? 'Guten Tag' : 'Guten Abend';
+      const urgent = state.tasks.inProgress.filter(t => t.date === 'Heute');
+      const taskInfo = allActive.length > 0
+        ? `Sie haben **${state.tasks.inProgress.length}** Aufgaben in Arbeit und **${state.tasks.backlog.length}** im Backlog.`
+        : 'Sie haben noch keine Aufgaben – ein guter Start für einen produktiven Tag!';
+      const todoInfo = openTodos.length > 0
+        ? `Offene To-Dos: ${openTodos.slice(0,3).map(t => '"'+t.text+'"').join(', ')}${openTodos.length > 3 ? ` +${openTodos.length-3} weitere` : ''}.`
+        : 'Alle To-Dos erledigt! ✓';
+      const urgentInfo = urgent.length > 0 ? `\n⚠️ **Heute fällig:** ${urgent.map(t=>t.title).join(', ')}` : '';
+      return `${greeting}, ${name}! Schön, dass Sie da sind. Heute ist ${today}.
 
-Sie haben aktuell **${taskCount} aktive Aufgaben** und **${todoCount} offene To-Dos**.
-${openTodos.length > 0 ? `Ihre offenen Punkte: ${openTodos.slice(0,3).map(t=>t.text).join(', ')}${openTodos.length > 3 ? ' …' : ''}.` : ''}
+${taskInfo}
+${todoInfo}${urgentInfo}
 
-Was planen Sie heute? Ich kann Aufgaben hinzufügen, To-Dos eintragen oder eine Zusammenfassung erstellen.`;
+Was planen Sie heute? Sie können mir sagen:
+• "Schreib [Aufgabe] in meine To-Dos"
+• "Neue Aufgabe: [Titel]"
+• "Zeig mir meinen Überblick"
+• "Was soll ich heute zuerst machen?"`;
     }
 
-    // Extract todo from "schreib X in meine todos / füge X hinzu"
+    // ── 2. TODO HINZUFÜGEN ────────────────────────────────
     const todoPatterns = [
-      /(?:schreib|trag|füge?|notiere?|erstell)\s+(?:bitte\s+)?["']?(.+?)["']?\s+(?:in|auf)\s+(?:meine[nr]?\s+)?to.?dos?/i,
-      /(?:schreib|trag|füge?|notiere?|erstell)\s+(?:bitte\s+)?["']?(.+?)["']?\s+(?:als|als\s+)?(?:aufgabe|todo|task)/i,
-      /(?:to.?do|aufgabe|task):\s*["']?(.+?)["']?$/i,
-      /(?:erinnere?\s+mich\s+(?:daran\s+)?(?:an\s+)?(?:bitte\s+)?)(.+?)$/i,
+      /(?:schreib|trag|füge?|notiere?|erstell|setz|pack)\w*\s+(?:bitte\s+)?["»]?(.+?)["«]?\s+(?:in|auf|zu|als)\s+(?:meine[rn]?\s+)?(?:to.?do|aufgabe|liste|notiz|erinnerung)/i,
+      /(?:schreib|trag|füge?|notiere?|erstell)\w*\s+(?:bitte\s+)?["»]?(.+?)["«]?\s+(?:bitte\s+)?(?:in\s+)?(?:die\s+)?(?:to.?do|liste|aufgaben)/i,
+      /(?:to.?do|aufgabe|task|erinnerung)[:\s]+["»]?(.+?)["«]?(?:\s*$)/i,
+      /(?:ich\s+muss\s+noch|vergiss?\s+nicht|nicht\s+vergess?\w+)\s+(.+?)(?:\s*$)/i,
+      /(?:erinnere?\s+mich\s+(?:bitte\s+)?(?:daran\s+)?(?:an\s+)?)\s*(.+?)(?:\s*$)/i,
+      /(?:schreib|trag)\w*\s+(?:das\s+)?(?:bitte\s+)?(?:in\s+)?(?:meine[rn]?\s+)?(?:to.?do|liste)[:\s]+(.+?)(?:\s*$)/i,
     ];
     for (const pat of todoPatterns) {
       const m = msg.match(pat);
       if (m) {
-        const text = m[1].trim().replace(/^(bitte|an|dass|zu)\s+/i, '');
-        if (text.length > 2) {
-          addTodoItem(text);
-          return `[AKTION: add_todo | text: "${text}"]
+        const text = m[1].trim().replace(/^(bitte|an|dass|zu|das|die|der|den)\s+/i, '').replace(/[.!?]+$/, '');
+        if (text.length > 1 && text.length < 200) {
+          const priority = /dringend|urgent|sofort|wichtig/.test(msg) ? '🔴 ' : '';
+          addTodoItem(priority + text);
+          save(); renderTodos();
+          return `Ich habe **"${text}"** in Ihre To-Do-Liste eingetragen. ✓
 
-Ich habe "${text}" in Ihre To-Do-Liste eingetragen. ✓
-
-Sie haben jetzt ${state.todos.filter(t=>!t.done).length} offene To-Dos.`;
+Sie haben jetzt **${state.todos.filter(t=>!t.done).length} offene To-Dos**.
+${state.todos.filter(t=>!t.done).slice(-3).map(t=>'• '+t.text).join('\n')}`;
         }
       }
     }
 
-    // Add task / aufgabe
-    const taskPatterns = [
-      /(?:füge?|erstell|leg\s+an)\s+(?:bitte\s+)?(?:eine?\s+)?aufgabe?\s+["']?(.+?)["']?\s+(?:zum\s+)?(?:backlog|in\s+arbeit|erledigt)?/i,
-      /neue?\s+aufgabe?:\s*["']?(.+?)["']?/i,
+    // ── 3. MEHRERE TODOS AUF EINMAL ───────────────────────
+    const multiTodoM = msg.match(/(?:schreib|trag|füge?|erstell)\w*\s+(?:bitte\s+)?(?:folgendes?|diese[s]?|mehrere|die\s+folgenden?)[^:]*:\s*(.+)/i);
+    if (multiTodoM) {
+      const items = multiTodoM[1].split(/[,;]|\s+und\s+/).map(s => s.trim().replace(/^[-•*]\s*/, '')).filter(s => s.length > 1);
+      if (items.length > 1) {
+        items.forEach(t => addTodoItem(t));
+        save(); renderTodos();
+        return `Ich habe **${items.length} To-Dos** eingetragen:\n${items.map(t=>'✓ '+t).join('\n')}`;
+      }
+    }
+
+    // ── 4. TODO ABHAKEN / ERLEDIGEN ───────────────────────
+    const donePatterns = [
+      /(?:hak|markier|setz|streich)\w*\s+(?:bitte\s+)?["»]?(.+?)["«]?\s+(?:als\s+)?(?:erledigt|fertig|done|ab)/i,
+      /["»]?(.+?)["«]?\s+(?:ist\s+)?(?:erledigt|fertig|done|geschafft|gemacht)/i,
+      /(?:fertig|done|erledigt)\s+(?:mit\s+)?["»]?(.+?)["«]?$/i,
     ];
-    for (const pat of taskPatterns) {
+    for (const pat of donePatterns) {
       const m = msg.match(pat);
       if (m) {
-        const title = m[1].trim();
-        if (title.length > 2) {
-          const col = /in\s+arbeit/i.test(msg) ? 'inProgress' : 'backlog';
-          state.tasks[col].push({ id: 'task_' + Date.now(), title, desc: '', tag: null, priority: 'mittel', date: null });
-          save(); renderKanban();
-          return `[AKTION: add_task | title: "${title}" | column: "${col}"]
-
-Aufgabe **"${title}"** wurde zum ${col === 'inProgress' ? 'Bereich "In Arbeit"' : 'Backlog'} hinzugefügt. ✓`;
+        const search = m[1].trim().toLowerCase();
+        const todo = state.todos.find(t => !t.done && t.text.toLowerCase().includes(search));
+        const task = [...state.tasks.backlog, ...state.tasks.inProgress].find(t => t.title.toLowerCase().includes(search));
+        if (todo) {
+          todo.done = true; save(); renderTodos();
+          return `"${todo.text}" als erledigt markiert. ✓\nNoch ${state.todos.filter(t=>!t.done).length} offene To-Dos.`;
+        }
+        if (task) {
+          moveTask(task.id, state.tasks.backlog.includes(task) ? 'backlog' : 'inProgress', 'done');
+          return `Aufgabe **"${task.title}"** als abgeschlossen markiert. ✓`;
         }
       }
     }
 
-    // Summary / Zusammenfassung
-    if (/zusammenfassung|überblick|status|wie\s+läuft|wie\s+steht|was\s+steht\s+an/.test(msg)) {
-      const done = state.tasks.done.length;
-      const inProgress = state.tasks.inProgress.map(t => `• ${t.title}`).join('\n') || '• Keine';
-      const backlog = state.tasks.backlog.map(t => `• ${t.title}`).join('\n') || '• Keine';
-      const todosOpen = openTodos.map(t => `• ${t.text}`).join('\n') || '• Keine';
-      return `**Ihr aktueller Überblick** (${today}):
-
-**In Arbeit:**
-${inProgress}
-
-**Backlog:**
-${backlog}
-
-**Offene To-Dos:**
-${todosOpen}
-
-**Abgeschlossen:** ${done} Aufgaben ✓
-
-${openTodos.length > 0 ? `Empfehlung: Konzentrieren Sie sich heute auf "${openTodos[0].text}".` : 'Hervorragend – alle To-Dos erledigt!'}`;
+    // ── 5. AUFGABE HINZUFÜGEN (KANBAN) ───────────────────
+    const taskAddM = msg.match(/(?:neue?\s+aufgabe|erstell\w*\s+(?:eine?\s+)?aufgabe|füge?\w*\s+(?:eine?\s+)?aufgabe(?:\s+hinzu)?|leg\w*\s+(?:eine?\s+)?aufgabe\s+an)[:\s]+["»]?(.+?)["«]?(?:\s*$)/i)
+      || msg.match(/aufgabe[:\s]+["»]?(.+?)["«]?(?:\s*$)/i);
+    if (taskAddM) {
+      const title = taskAddM[1].trim().replace(/[.!?]+$/, '');
+      if (title.length > 1) {
+        const col = /in\s+arbeit|bearbeitung|progress/i.test(msg) ? 'inProgress' : 'backlog';
+        const priority = /dringend|hoch|urgent|wichtig/i.test(msg) ? 'hoch' : /niedrig|later|später/i.test(msg) ? 'niedrig' : 'mittel';
+        const tag = msg.match(/(?:kategorie|tag|bereich)[:\s]+(\w+)/i)?.[1] || null;
+        state.tasks[col].push({ id: 'task_' + Date.now(), title, desc: '', tag, priority, date: null });
+        save(); renderKanban();
+        return `Aufgabe **"${title}"** wurde zum ${col === 'inProgress' ? 'Bereich "In Arbeit"' : 'Backlog'} hinzugefügt. ✓\n(Priorität: ${priority})`;
+      }
     }
 
-    // Weekly plan request
-    if (/wochenplan|diese\s+woche\s+planen|woche\s+organisieren/.test(msg)) {
-      return `Um einen detaillierten KI-Wochenplan zu erstellen, wechseln Sie bitte zur Ansicht "Wochenplan" und klicken Sie auf **"KI-Wochenplan erstellen"**.
-
-Alternativ kann ich Ihnen helfen, einzelne Aufgaben für bestimmte Tage einzutragen. Sagen Sie z.B. "Füge für Montag die Aufgabe Kundengespräch hinzu".`;
+    // ── 6. AUFGABE VERSCHIEBEN ────────────────────────────
+    const moveM = msg.match(/(?:verschiebe?|beweg\w*|schiebe?)\s+(?:bitte\s+)?["»]?(.+?)["«]?\s+(?:nach|zu|in(?:\s+den)?)\s+(backlog|in\s+arbeit|erledigt|done)/i);
+    if (moveM) {
+      const search = moveM[1].trim().toLowerCase();
+      const destRaw = moveM[2].toLowerCase();
+      const dest = /in\s+arbeit|progress/i.test(destRaw) ? 'inProgress' : /erledigt|done/i.test(destRaw) ? 'done' : 'backlog';
+      const cols = ['backlog', 'inProgress', 'done'];
+      for (const col of cols) {
+        const task = state.tasks[col].find(t => t.title.toLowerCase().includes(search));
+        if (task && col !== dest) {
+          moveTask(task.id, col, dest);
+          return `Aufgabe **"${task.title}"** wurde nach "${colLabel(dest)}" verschoben. ✓`;
+        }
+      }
+      return `Ich konnte keine Aufgabe mit "${moveM[1]}" finden.`;
     }
 
-    // Help
-    if (/hilfe|was\s+kannst\s+du|was\s+kann\s+ich|befehle|kommandos/.test(msg)) {
-      return `**Was ich für Sie tun kann** (Offline-Modus):
+    // ── 7. ZUSAMMENFASSUNG / STATUS ───────────────────────
+    if (/zusammenfassung|überblick|status|was\s+steht\s+an|wie\s+läuft|was\s+hab\s+ich|zeig\s+mir\s+(?:meinen?\s+)?(?:plan|überblick|status)|was\s+ist\s+(?:heute\s+)?(?:geplant|auf\s+dem\s+plan)/i.test(msg)) {
+      const inP = state.tasks.inProgress.map(t => `  • ${t.title}${t.date ? ' ('+t.date+')' : ''}`).join('\n') || '  • Keine';
+      const bl = state.tasks.backlog.map(t => `  • ${t.title}`).join('\n') || '  • Keine';
+      const td = openTodos.slice(0,5).map(t => `  • ${t.text}`).join('\n') || '  • Keine';
+      const goals = state.weeklyGoals.filter(g=>!g.done).map(g=>`  • ${g.text}`).join('\n') || '  • Alle erreicht ✓';
+      const topTodo = openTodos[0];
+      return `**Ihr ${dayName}-Überblick** – ${today}
 
-• **To-Do hinzufügen:** "Schreib [Aufgabe] in meine To-Dos"
-• **Aufgabe hinzufügen:** "Neue Aufgabe: [Titel]"
-• **Überblick:** "Zeig mir eine Zusammenfassung"
-• **Begrüßung:** Sagen Sie einfach "Hallo"
+**In Arbeit (${state.tasks.inProgress.length}):**
+${inP}
 
-Für erweiterte KI-Funktionen aktivieren Sie Chrome Browser-KI oder WebLLM in den Einstellungen.`;
+**Backlog (${state.tasks.backlog.length}):**
+${bl}
+
+**Offene To-Dos (${openTodos.length}):**
+${td}${openTodos.length > 5 ? `\n  … +${openTodos.length-5} weitere` : ''}
+
+**Wochenziele:**
+${goals}
+
+**Abgeschlossen heute:** ${state.tasks.done.length + doneTodos.length} Punkte ✓
+${topTodo ? `\n💡 **Empfehlung:** Starten Sie mit "${topTodo.text}"` : '\n🎉 Hervorragend – alle To-Dos erledigt!'}`;
     }
 
-    // Default fallback
-    return `Ich habe Ihre Nachricht erhalten, ${name}.
+    // ── 8. PRIORITÄTEN / WAS ZUERST ───────────────────────
+    if (/was\s+soll\s+ich|was\s+(?:als\s+)?nächstes|womit\s+anfang|priorität|was\s+zuerst|empfehl|was\s+ist\s+wichtig/i.test(msg)) {
+      const highPrio = [...state.tasks.inProgress, ...state.tasks.backlog].filter(t => t.priority === 'hoch');
+      const todayTasks = [...state.tasks.inProgress, ...state.tasks.backlog].filter(t => t.date === 'Heute');
+      const top = todayTasks.length > 0 ? todayTasks : highPrio.length > 0 ? highPrio : [...state.tasks.inProgress, ...state.tasks.backlog];
+      const topItems = top.slice(0,3);
+      if (topItems.length === 0 && openTodos.length === 0) return `Sie haben keine offenen Aufgaben oder To-Dos. Genießen Sie den freien Tag, ${name}!`;
+      const taskList = topItems.map((t,i) => `${i+1}. **${t.title}**${t.priority==='hoch'?' 🔴':''}`).join('\n');
+      const todoList = openTodos.slice(0,2).map((t,i) => `${i+1}. ${t.text}`).join('\n');
+      return `**Meine Empfehlung für Sie, ${name}:**
 
-Im Offline-Modus stehen mir begrenzte Funktionen zur Verfügung. Ich kann:
-• To-Dos hinzufügen ("Schreib X in meine To-Dos")
-• Aufgaben erstellen ("Neue Aufgabe: X")
-• Zusammenfassungen anzeigen ("Überblick")
+${topItems.length > 0 ? `**Aufgaben (Priorität):**\n${taskList}` : ''}
+${openTodos.length > 0 ? `\n**To-Dos:**\n${todoList}` : ''}
 
-Für intelligentere Antworten aktivieren Sie bitte Chrome Browser-KI oder WebLLM in den **Einstellungen**.`;
+Starten Sie mit dem Wichtigsten und arbeiten Sie sich vor. Sie schaffen das!`;
+    }
+
+    // ── 9. NOTIZ SPEICHERN ────────────────────────────────
+    const noteM = msg.match(/(?:notier|merk|schreib\s+(?:mir|als\s+notiz)|speicher)\w*\s+(?:bitte\s+)?(?:folgendes?|das|dies)?[:\s]+(.+)/i);
+    if (noteM) {
+      const noteText = noteM[1].trim();
+      state.quickNote = (state.quickNote ? state.quickNote + '\n' : '') + '• ' + noteText;
+      const ta = document.getElementById('note-textarea');
+      if (ta) ta.value = state.quickNote;
+      save();
+      return `Notiz gespeichert: "${noteText}" ✓\n\nSie finden sie in den Schnellnotizen (unten rechts).`;
+    }
+
+    // ── 10. WOCHENZIEL HINZUFÜGEN ─────────────────────────
+    const goalM = msg.match(/(?:(?:neues?\s+)?wochenziel|ziel\s+(?:für\s+die\s+woche|diese[rn]?\s+woche))[:\s]+(.+)/i);
+    if (goalM) {
+      const goalText = goalM[1].trim().replace(/[.!?]+$/, '');
+      if (goalText.length > 1) {
+        state.weeklyGoals.push({ id: 'g_'+Date.now(), text: goalText, done: false });
+        save(); renderGoals();
+        return `Wochenziel **"${goalText}"** hinzugefügt. ✓\nSie haben jetzt ${state.weeklyGoals.filter(g=>!g.done).length} aktive Wochenziele.`;
+      }
+    }
+
+    // ── 11. STATISTIKEN ──────────────────────────────────
+    if (/statistik|wie\s+viele?|anzahl|count|wie\s+oft|wie\s+gut/i.test(msg)) {
+      const total = state.todos.length;
+      const doneCount = doneTodos.length;
+      const pct = total > 0 ? Math.round(doneCount/total*100) : 0;
+      return `**Ihre Statistiken:**
+
+📋 To-Dos gesamt: ${total} (${pct}% erledigt)
+✅ Erledigt: ${doneCount}
+⏳ Offen: ${openTodos.length}
+🔄 Aufgaben in Arbeit: ${state.tasks.inProgress.length}
+📦 Backlog: ${state.tasks.backlog.length}
+✔️ Abgeschlossene Aufgaben: ${state.tasks.done.length}
+🎯 Wochenziele: ${state.weeklyGoals.filter(g=>g.done).length}/${state.weeklyGoals.length} erreicht`;
+    }
+
+    // ── 12. MOTIVATION / TIPP ────────────────────────────
+    if (/motivier|aufmunter|spruch|tipp|rate\s+mir|ich\s+bin\s+müde|keine\s+lust|ich\s+schaff/i.test(msg)) {
+      const tips = [
+        `**Eat the Frog:** Erledigen Sie Ihre schwierigste Aufgabe zuerst – der Rest des Tages fühlt sich leichter an.`,
+        `**Pomodoro:** 25 Minuten fokussiert arbeiten, 5 Minuten Pause. Setzen Sie jetzt den Timer!`,
+        `**Kaizen:** Kleine, tägliche Verbesserungen führen zu großen Ergebnissen. Sie sind auf dem richtigen Weg!`,
+        `**Zwei-Minuten-Regel:** Wenn etwas weniger als 2 Minuten dauert, tun Sie es sofort.`,
+        `Sie haben bereits ${doneTodos.length + state.tasks.done.length} Dinge erledigt. Das ist großartig, ${name}!`,
+      ];
+      return tips[Math.floor(Math.random() * tips.length)];
+    }
+
+    // ── 13. WOCHENPLAN ───────────────────────────────────
+    if (/wochenplan|diese\s+woche|woche\s+(?:planen|organisieren)|was\s+(?:kommt\s+)?diese\s+woche/i.test(msg)) {
+      const days = Object.keys(state.weeklyPlan);
+      if (days.length > 0) {
+        const today2 = new Date().toLocaleDateString('de-DE', { weekday: 'long' });
+        const todayPlan = state.weeklyPlan[today2] || [];
+        return `**Ihr Wochenplan:**
+
+**Heute (${today2}):**
+${todayPlan.length > 0 ? todayPlan.map(t=>'• '+t).join('\n') : '• Noch nichts geplant'}
+
+Für einen vollständigen KI-Wochenplan: Wochenplan-Ansicht → "KI-Wochenplan erstellen"`;
+      }
+      return `Sie haben noch keinen Wochenplan erstellt.\n\nGehen Sie zur **Wochenplan**-Ansicht und klicken Sie auf "KI-Wochenplan erstellen" – ich plane Ihre Woche automatisch.`;
+    }
+
+    // ── 14. HILFE ─────────────────────────────────────────
+    if (/hilfe|help|was\s+kannst\s+du|was\s+kann\s+ich|befehle|kommandos|wie\s+funktioniert/i.test(msg)) {
+      return `**GodMode AI – Offline-Befehle** (${name}):
+
+**To-Dos:**
+• "Schreib [Aufgabe] in meine To-Dos"
+• "Erinnere mich an [Aufgabe]"
+• "[Aufgabe] ist erledigt"
+
+**Aufgaben (Kanban):**
+• "Neue Aufgabe: [Titel]"
+• "Verschiebe [Aufgabe] nach In Arbeit"
+
+**Informationen:**
+• "Zeig mir meinen Überblick"
+• "Was soll ich zuerst machen?"
+• "Statistiken"
+• "Motiviere mich"
+
+**Ziele & Notizen:**
+• "Wochenziel: [Ziel]"
+• "Notiere: [Text]"
+
+Ich verstehe natürliche Sprache auf Deutsch – sprechen Sie einfach mit mir!`;
+    }
+
+    // ── 15. ABSCHIED ─────────────────────────────────────
+    if (/tschüss|auf\s+wiedersehen|bis\s+dann|ciao|bye|gute\s+nacht|bis\s+morgen/i.test(msg)) {
+      const remaining = openTodos.length + state.tasks.inProgress.length;
+      return `Auf Wiedersehen, ${name}! ${remaining > 0 ? `Sie haben noch ${remaining} offene Punkte – morgen ist auch ein Tag.` : 'Alles erledigt – hervorragende Arbeit heute!'} Bis bald!`;
+    }
+
+    // ── INTELLIGENTER FALLBACK: versuche Absicht zu erkennen ─
+    // Enthält die Nachricht ein Substantiv das wie eine Aufgabe klingt?
+    const taskLike = msg.match(/(?:^|\s)(?:ich\s+(?:muss|soll|will|möchte|brauche?)\s+(?:noch\s+)?|bitte\s+)(.{3,60})(?:$|\.|\!)/i);
+    if (taskLike) {
+      const candidate = taskLike[1].trim().replace(/^(noch|unbedingt|heute|morgen|schnell)\s+/i, '');
+      if (candidate.length > 2) {
+        addTodoItem(candidate);
+        save(); renderTodos();
+        return `Ich habe **"${candidate}"** als To-Do notiert. ✓\n\nSie haben jetzt ${state.todos.filter(t=>!t.done).length} offene Punkte.`;
+      }
+    }
+
+    // Default: hilfreich aber ehrlich
+    return `Ich habe Sie verstanden, ${name}. Im Offline-Modus bin ich spezialisiert auf Aufgabenverwaltung.
+
+**Was ich erkenne:**
+• To-Dos hinzufügen: "Schreib X in meine To-Dos"
+• Aufgaben: "Neue Aufgabe: X" oder "Verschiebe X nach In Arbeit"
+• Status: "Überblick" oder "Was zuerst?"
+• Erledigungen: "X ist erledigt"
+
+Sagen Sie **"Hilfe"** für alle Befehle.`;
   }
 
   function buildSystemPrompt() {
@@ -1306,15 +1605,33 @@ Notiz: ${state.quickNote || 'keine'}`;
 
   function toggleListening() {
     if (state.isListening) {
-      stopListening();
+      // Stop whichever recorder is active
+      if (state.mediaRecorder && state.mediaRecorder.state !== 'inactive') {
+        stopOfflineRecording();
+      } else {
+        stopListening();
+      }
     } else {
-      startListening();
+      // Prefer Whisper (offline) if loaded, otherwise fall back to Web Speech API
+      if (state.whisperLoaded) {
+        startOfflineRecording();
+      } else {
+        startListening();
+      }
     }
   }
 
   function startListening() {
     if (!window.SpeechRecognition && !window.webkitSpeechRecognition) {
-      toast('Spracherkennung nicht unterstützt. Bitte Chrome nutzen.');
+      if (state.whisperLoaded) {
+        // Silently fall back to Whisper
+        startOfflineRecording();
+        return;
+      }
+      // Prompt user to load Whisper for fully offline voice
+      document.getElementById('voice-transcript').textContent =
+        'Kein Internet für Spracherkennung. Laden Sie Whisper in den Einstellungen für Offline-Sprache.';
+      updateVoiceUI('idle');
       return;
     }
     stopListening();
@@ -1369,6 +1686,14 @@ Notiz: ${state.quickNote || 'keine'}`;
     updateVoiceUI('idle');
   }
 
+  function restartListening() {
+    if (state.whisperLoaded) {
+      startOfflineRecording();
+    } else {
+      startListening();
+    }
+  }
+
   async function handleVoiceInput(transcript) {
     stopListening();
     updateVoiceUI('thinking');
@@ -1399,7 +1724,7 @@ Notiz: ${state.quickNote || 'keine'}`;
       if (state.voiceConversationActive) {
         updateVoiceUI('idle');
         setTimeout(() => {
-          if (state.voiceConversationActive) startListening();
+          if (state.voiceConversationActive) restartListening();
         }, 800);
       } else {
         updateVoiceUI('idle');
@@ -1417,7 +1742,7 @@ Notiz: ${state.quickNote || 'keine'}`;
         updateVoiceUI('speaking');
         await speakText(offlineResp);
         updateVoiceUI('idle');
-        if (state.voiceConversationActive) setTimeout(() => { if (state.voiceConversationActive) startListening(); }, 800);
+        if (state.voiceConversationActive) setTimeout(() => { if (state.voiceConversationActive) restartListening(); }, 800);
       } catch(e2) {
         document.getElementById('voice-transcript').textContent = 'Fehler: ' + e.message;
         updateVoiceUI('idle');
@@ -2082,6 +2407,19 @@ Nur JSON, kein weiterer Text.`;
     document.getElementById('settings-voice').value = state.voiceName;
     document.getElementById('settings-provider').value = state.aiProvider;
     onProviderChange(state.aiProvider);
+    // Refresh Whisper status
+    const wBtn = document.getElementById('whisper-load-btn');
+    const wStatus = document.getElementById('whisper-status');
+    const wSub = document.getElementById('whisper-status-sub');
+    if (state.whisperLoaded) {
+      if (wBtn) { wBtn.textContent = '✓ Geladen'; wBtn.disabled = true; wBtn.classList.add('opacity-50'); }
+      if (wStatus) wStatus.textContent = 'Whisper aktiv – Sprache funktioniert offline';
+      if (wSub) wSub.textContent = 'Klicken Sie auf das Mikrofon für Offline-Spracherkennung';
+    } else {
+      if (wBtn) { wBtn.textContent = 'Laden'; wBtn.disabled = false; wBtn.classList.remove('opacity-50'); }
+      if (wStatus) wStatus.textContent = 'Whisper Offline-Spracherkennung';
+      if (wSub) wSub.textContent = '~150MB einmalig · danach kein Internet nötig';
+    }
     document.getElementById('settings-modal').classList.remove('hidden');
   }
 
@@ -2227,7 +2565,7 @@ Nur JSON, kein weiterer Text.`;
     addTodo, toggleTodo, deleteTodo, setTodoFilter, generateTodosFromAI,
     saveNote, processNoteWithAI,
     openSettings, closeSettings, saveSettings, toggleApiKeyVisibility,
-    onProviderChange, loadWebLLM, sendVoiceText, resetApp,
+    onProviderChange, loadWebLLM, loadWhisper, sendVoiceText, resetApp,
     init
   };
 })();
