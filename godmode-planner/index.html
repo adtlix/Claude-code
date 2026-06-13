@@ -531,6 +531,16 @@ article:hover .drag-handle { opacity: 1; }
       </button>
     </div>
 
+    <!-- Text input fallback (wenn Mikrofon nicht klappt) -->
+    <div class="flex gap-2 w-full">
+      <input id="voice-text-input" type="text" placeholder="Oder Nachricht tippen..."
+             class="flex-1 bg-white/40 backdrop-blur-md rounded-xl px-4 py-2 glass-inner-border text-body-md text-on-surface focus:outline-none focus:ring-2 focus:ring-primary/20 placeholder-on-surface-variant/40"
+             onkeypress="if(event.key==='Enter') App.sendVoiceText()"/>
+      <button onclick="App.sendVoiceText()" class="px-4 py-2 bg-white/30 glass-inner-border rounded-xl text-on-surface-variant hover:bg-white/50 transition-colors">
+        <span class="material-symbols-outlined text-[18px]">send</span>
+      </button>
+    </div>
+
     <!-- Active AI provider badge -->
     <div class="flex items-center justify-between w-full">
       <span id="voice-provider-badge" class="font-label-sm text-label-sm text-on-surface-variant/70 bg-white/30 px-3 py-1 rounded-full glass-inner-border"></span>
@@ -757,11 +767,18 @@ const App = (() => {
   function load() {
     try {
       const saved = JSON.parse(localStorage.getItem('gm_state') || '{}');
-      if (saved.apiKey) state.apiKey = saved.apiKey;
       if (saved.aiProvider) state.aiProvider = saved.aiProvider;
+      // API-Key nur laden wenn Provider 'gemini' – verhindert versehentliche Gemini-Aufrufe
+      if (saved.apiKey && (saved.aiProvider === 'gemini' || !saved.aiProvider)) {
+        state.apiKey = saved.apiKey;
+      }
       if (saved.userName) state.userName = saved.userName;
       if (saved.greetingName) state.greetingName = saved.greetingName;
-      if (saved.voiceName) state.voiceName = saved.voiceName;
+      // Gemini-Stimmen nur wenn Provider 'gemini', sonst Browser-Stimme
+      const geminiVoices = ['Aoede','Kore','Charon','Fenrir','Puck'];
+      if (saved.voiceName && !(geminiVoices.includes(saved.voiceName) && state.aiProvider !== 'gemini')) {
+        state.voiceName = saved.voiceName;
+      }
       if (saved.tasks) state.tasks = saved.tasks;
       if (saved.weeklyGoals) state.weeklyGoals = saved.weeklyGoals;
       if (saved.todos) state.todos = saved.todos;
@@ -1169,14 +1186,13 @@ Notiz: ${state.quickNote || 'keine'}`;
 
     state.isSpeaking = true;
 
-    if (state.voiceName === 'browser' || !state.apiKey) {
-      await speakBrowser(cleanText);
+    // Gemini TTS NUR wenn Provider explizit 'gemini' UND key vorhanden UND Gemini-Stimme gewählt
+    const useGeminiTTS = state.aiProvider === 'gemini' && state.apiKey && state.voiceName !== 'browser';
+
+    if (useGeminiTTS) {
+      try { await speakGemini(cleanText); } catch(e) { await speakBrowser(cleanText); }
     } else {
-      try {
-        await speakGemini(cleanText);
-      } catch(e) {
-        await speakBrowser(cleanText);
-      }
+      await speakBrowser(cleanText);
     }
     state.isSpeaking = false;
   }
@@ -1311,11 +1327,15 @@ Notiz: ${state.quickNote || 'keine'}`;
     };
 
     state.recognition.onerror = (e) => {
-      if (e.error !== 'no-speech' && e.error !== 'aborted') {
-        toast('Sprachfehler: ' + e.error);
-      }
       state.isListening = false;
       updateVoiceUI('idle');
+      if (e.error === 'network') {
+        document.getElementById('voice-transcript').textContent = 'Spracherkennung benötigt Internet. Bitte Text im KI-Chat eingeben.';
+      } else if (e.error === 'not-allowed') {
+        document.getElementById('voice-transcript').textContent = 'Mikrofon-Zugriff verweigert. Bitte im Browser erlauben.';
+      } else if (e.error !== 'no-speech' && e.error !== 'aborted') {
+        document.getElementById('voice-transcript').textContent = 'Fehler: ' + e.error + ' – bitte KI-Chat nutzen.';
+      }
     };
 
     state.recognition.onend = () => {
@@ -1395,6 +1415,15 @@ Notiz: ${state.quickNote || 'keine'}`;
         updateVoiceUI('idle');
       }
     }
+  }
+
+  async function sendVoiceText() {
+    const input = document.getElementById('voice-text-input');
+    const text = input.value.trim();
+    if (!text) return;
+    input.value = '';
+    document.getElementById('voice-transcript').textContent = text;
+    await handleVoiceInput(text);
   }
 
   function updateVoiceUI(mode) {
@@ -2179,7 +2208,7 @@ Nur JSON, kein weiterer Text.`;
     addTodo, toggleTodo, deleteTodo, setTodoFilter, generateTodosFromAI,
     saveNote, processNoteWithAI,
     openSettings, closeSettings, saveSettings, toggleApiKeyVisibility,
-    onProviderChange, loadWebLLM,
+    onProviderChange, loadWebLLM, sendVoiceText,
     init
   };
 })();
