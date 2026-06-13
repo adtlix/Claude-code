@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+
+<html class="light" lang="de"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Wochenplaner - Liquid Glass Edition</title>
+<!-- Material Symbols -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Tailwind Config -->
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "primary-fixed": "#e2e2e2",
+                        "on-surface": "#1a1c1d",
+                        "on-tertiary": "#ffffff",
+                        "on-secondary-container": "#fefcff",
+                        "surface-container-lowest": "#ffffff",
+                        "error": "#ba1a1a",
+                        "surface": "#f9f9fb",
+                        "tertiary-fixed-dim": "#c6c6c6",
+                        "surface-dim": "#d9dadc",
+                        "on-tertiary-fixed-variant": "#474747",
+                        "primary-container": "#1b1b1b",
+                        "surface-container-low": "#f3f3f5",
+                        "on-primary-fixed": "#1b1b1b",
+                        "secondary": "#005ab7",
+                        "glass-border": "rgba(255, 255, 255, 0.2)",
+                        "deep-blur": "rgba(0, 0, 0, 0.05)",
+                        "tertiary-fixed": "#e2e2e2",
+                        "primary-fixed-dim": "#c6c6c6",
+                        "outline-variant": "#cfc4c5",
+                        "background": "#f9f9fb",
+                        "on-primary-fixed-variant": "#474747",
+                        "on-error-container": "#93000a",
+                        "surface-container-high": "#e8e8ea",
+                        "on-primary": "#ffffff",
+                        "on-secondary-fixed": "#001b3f",
+                        "on-error": "#ffffff",
+                        "inverse-on-surface": "#f0f0f2",
+                        "secondary-fixed": "#d7e2ff",
+                        "error-container": "#ffdad6",
+                        "on-tertiary-fixed": "#1b1b1b",
+                        "secondary-container": "#0372e4",
+                        "on-tertiary-container": "#848484",
+                        "surface-bright": "#f9f9fb",
+                        "on-primary-container": "#848484",
+                        "tertiary-container": "#1b1b1b",
+                        "on-secondary-fixed-variant": "#00458f",
+                        "liquid-tint": "rgba(255, 255, 255, 0.7)",
+                        "inverse-primary": "#c6c6c6",
+                        "inverse-surface": "#2f3132",
+                        "secondary-fixed-dim": "#abc7ff",
+                        "primary": "#000000",
+                        "on-surface-variant": "#4c4546",
+                        "surface-tint": "#5e5e5e",
+                        "surface-container-highest": "#e2e2e4",
+                        "on-background": "#1a1c1d",
+                        "surface-variant": "#e2e2e4",
+                        "outline": "#7e7576",
+                        "tertiary": "#000000",
+                        "on-secondary": "#ffffff",
+                        "surface-container": "#eeeef0"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "2xl": "1rem",
+                        "3xl": "1.5rem",
+                        "4xl": "2rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "gutter": "24px",
+                        "margin-mobile": "20px",
+                        "margin-desktop": "40px",
+                        "container-max": "1200px",
+                        "unit": "8px"
+                    },
+                    "fontFamily": {
+                        "label-md": ["Geist", "sans-serif"],
+                        "label-sm": ["Geist", "sans-serif"],
+                        "headline-lg-mobile": ["Geist", "sans-serif"],
+                        "body-lg": ["Geist", "sans-serif"],
+                        "display-xl": ["Geist", "sans-serif"],
+                        "body-md": ["Geist", "sans-serif"],
+                        "headline-lg": ["Geist", "sans-serif"],
+                        "headline-md": ["Geist", "sans-serif"]
+                    },
+                    "fontSize": {
+                        "label-md": ["14px", { "lineHeight": "1.2", "letterSpacing": "0.02em", "fontWeight": "500" }],
+                        "label-sm": ["12px", { "lineHeight": "1.2", "letterSpacing": "0.05em", "fontWeight": "600" }],
+                        "headline-lg-mobile": ["32px", { "lineHeight": "1.2", "letterSpacing": "-0.02em", "fontWeight": "600" }],
+                        "body-lg": ["19px", { "lineHeight": "1.5", "letterSpacing": "0", "fontWeight": "400" }],
+                        "display-xl": ["80px", { "lineHeight": "1.1", "letterSpacing": "-0.04em", "fontWeight": "700" }],
+                        "body-md": ["16px", { "lineHeight": "1.5", "letterSpacing": "0", "fontWeight": "400" }],
+                        "headline-lg": ["48px", { "lineHeight": "1.2", "letterSpacing": "-0.02em", "fontWeight": "600" }],
+                        "headline-md": ["32px", { "lineHeight": "1.3", "letterSpacing": "-0.01em", "fontWeight": "600" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        body { font-family: 'Geist', sans-serif; }
+        .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+        
+        /* Utility for optical inner glass border */
+        .glass-inner-border {
+            box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.4), 0 8px 32px rgba(0,0,0,0.04);
+        }
+    </style>
+</head>
+<body class="bg-background text-on-surface antialiased overflow-x-hidden min-h-screen relative">
+<!-- WebGL Background Shader Layer -->
+<canvas class="fixed inset-0 z-[-2] w-full h-full pointer-events-none" height="1024" id="bg-canvas" width="1280"></canvas>
+<script>
+    const canvas = document.getElementById('bg-canvas');
+    const gl = canvas.getContext('webgl');
+
+    if (gl) {
+        const vs = gl.createShader(gl.VERTEX_SHADER);
+        gl.shaderSource(vs, 'attribute vec2 p; varying vec2 v_texCoord; void main(){ gl_Position=vec4(p,0,1); v_texCoord=(p+1.0)/2.0; }');
+        gl.compileShader(vs);
+
+        const fs = gl.createShader(gl.FRAGMENT_SHADER);
+        gl.shaderSource(fs, `
+precision highp float;
+varying vec2 v_texCoord;
+uniform float u_time;
+uniform vec2 u_resolution;
+
+void main() {
+    vec2 uv = v_texCoord;
+    
+    // Background color: Neutral Apple-style off-white/light gray
+    vec3 color1 = vec3(0.96, 0.96, 0.98); // surface
+    vec3 color2 = vec3(0.92, 0.93, 0.95); // surface-dim
+    
+    // Create soft, fluid liquid motion
+    float wave = sin(uv.x * 2.0 + u_time * 0.5) * 0.5 + 0.5;
+    wave += cos(uv.y * 3.0 - u_time * 0.3) * 0.5 + 0.5;
+    wave *= 0.5;
+    
+    // Blend background colors
+    vec3 baseColor = mix(color1, color2, wave);
+    
+    // Add subtle "liquid" highlights
+    float highlight = pow(wave, 4.0) * 0.15;
+    baseColor += vec3(1.0) * highlight;
+    
+    gl_FragColor = vec4(baseColor, 1.0);
+}
+        `);
+        gl.compileShader(fs);
+
+        const prog = gl.createProgram();
+        gl.attachShader(prog, vs);
+        gl.attachShader(prog, fs);
+        gl.linkProgram(prog);
+        gl.useProgram(prog);
+
+        const buffer = gl.createBuffer();
+        gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
+        gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1,-1, 1,-1, -1,1, 1,1]), gl.STATIC_DRAW);
+
+        const pLoc = gl.getAttribLocation(prog, 'p');
+        gl.enableVertexAttribArray(pLoc);
+        gl.vertexAttribPointer(pLoc, 2, gl.FLOAT, false, 0, 0);
+
+        const tLoc = gl.getUniformLocation(prog, 'u_time');
+        const rLoc = gl.getUniformLocation(prog, 'u_resolution');
+
+        function render(t) {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            gl.viewport(0, 0, canvas.width, canvas.height);
+
+            gl.uniform1f(tLoc, t * 0.001);
+            gl.uniform2f(rLoc, canvas.width, canvas.height);
+
+            gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+            requestAnimationFrame(render);
+        }
+        requestAnimationFrame(render);
+    }
+</script>
+<!-- Immersive Background Layer -->
+<div class="fixed inset-0 z-[-1] bg-cover bg-center bg-no-repeat opacity-60" data-alt="A highly blurred, soft abstract architectural space featuring smooth, flowing organic geometry in pristine whites, soft light grays, and delicate cream tones. The lighting is heavily diffused and luminous, creating a bright, high-key, liquid glass aesthetic reminiscent of a high-end luxury editorial spread. No sharp edges, entirely serene, smooth, and tranquil." style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuDAGHIKpbzhR8t6zgmZ30qlC2QekPfi714iCPByMu1tAJcB9GzFee7IX6OVAUUWyR6PMFiqPn2ML5e_BG5jqYkUAz4Wlolnbf40D9LuR1PflsgY83PQsDLGRSMhaE53RPNpScssYI192XjYzszgHT1GQGXU5lxg6DWpbOu5r528fMNTCZXrHsGbPdzpCmP1uRSmWDPDHqzumeqNyVEeVRRZ-Kc30G1JwE0hCLX11ypdx_WHyP3yi2Z9ppcuDP5wO22-lICJuzvZWIQ_');">
+</div>
+<!-- TopNavBar -->
+<header class="sticky top-0 z-50 w-full flex justify-between items-center px-margin-mobile md:px-margin-desktop py-6 max-w-container-max mx-auto bg-white/10 backdrop-blur-[64px] rounded-b-[3rem] glass-inner-border shadow-[0_0_40px_rgba(255,255,255,0.5)] border-b border-glass-border/20 text-on-surface transition-all duration-500">
+<!-- Brand -->
+<div class="flex items-center gap-4">
+<span class="font-headline-md text-headline-md font-bold tracking-tight text-primary">Wochenplaner</span>
+</div>
+<!-- Desktop Navigation Links -->
+<nav class="hidden md:flex items-center gap-8 font-label-md text-label-md gap-10">
+<a class="text-primary font-bold border-b-2 border-primary pb-1 transition-colors duration-300 hover:bg-on-surface/5 px-2 rounded-t-md" href="#">Planer</a>
+<a class="text-on-surface-variant hover:text-on-surface transition-colors duration-300 hover:bg-on-surface/5 px-2 py-1 rounded-md" href="#">Team</a>
+<a class="text-on-surface-variant hover:text-on-surface transition-colors duration-300 hover:bg-on-surface/5 px-2 py-1 rounded-md" href="#">Projekte</a>
+</nav>
+<!-- Trailing Actions -->
+<div class="flex items-center gap-4">
+<button class="flex items-center gap-2 px-4 py-2 rounded-full bg-white/20 glass-inner-border shadow-[0_0_15px_rgba(255,255,255,0.3)] hover:bg-white/40 transition-colors duration-300 text-primary font-label-md">
+<span class="material-symbols-outlined text-[20px]" data-icon="center_focus_strong">center_focus_strong</span>
+<span class="hidden md:inline">Fokus</span>
+</button>
+<button class="p-2 rounded-full hover:bg-on-surface/5 transition-colors duration-300 scale-95 hover:scale-100 ease-out text-on-surface-variant hover:text-on-surface">
+<span class="material-symbols-outlined" data-icon="notifications">notifications</span>
+</button>
+<button class="p-2 rounded-full hover:bg-on-surface/5 transition-colors duration-300 scale-95 hover:scale-100 ease-out text-on-surface-variant hover:text-on-surface">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+</button>
+</div>
+</header>
+<!-- SideNavBar (Hidden on Mobile) -->
+<aside class="hidden md:flex fixed z-40 left-margin-desktop top-1/2 -translate-y-1/2 rounded-full py-8 w-20 flex-col items-center gap-6 h-fit bg-liquid-tint/40 backdrop-blur-[40px] border border-glass-border/30 shadow-[0_0_40px_rgba(255,255,255,0.4)] text-primary font-label-md text-label-md">
+<!-- Primary Tabs -->
+<div class="flex flex-col items-center gap-4 w-full px-2">
+<!-- Active Tab -->
+<button class="bg-primary text-on-primary rounded-xl p-3 flex flex-col items-center gap-1 group scale-90 duration-300 transition-transform shadow-[0_0_20px_rgba(255,255,255,0.6)]">
+<span class="material-symbols-outlined" data-icon="home" data-weight="fill" style="font-variation-settings: 'FILL' 1;">home</span>
+</button>
+<!-- Inactive Tabs -->
+<button class="text-on-surface-variant/70 p-3 flex flex-col items-center gap-1 hover:bg-on-surface/10 rounded-xl transition-all group hover:shadow-[0_0_20px_rgba(255,255,255,0.6)]">
+<span class="material-symbols-outlined group-hover:text-primary transition-colors" data-icon="search">search</span>
+</button>
+<button class="text-on-surface-variant/70 p-3 flex flex-col items-center gap-1 hover:bg-on-surface/10 rounded-xl transition-all group hover:shadow-[0_0_20px_rgba(255,255,255,0.6)]">
+<span class="material-symbols-outlined group-hover:text-primary transition-colors" data-icon="group">group</span>
+</button>
+<button class="text-on-surface-variant/70 p-3 flex flex-col items-center gap-1 hover:bg-on-surface/10 rounded-xl transition-all group hover:shadow-[0_0_20px_rgba(255,255,255,0.6)]">
+<span class="material-symbols-outlined group-hover:text-primary transition-colors" data-icon="mail">mail</span>
+</button>
+<button class="text-on-surface-variant/70 p-3 flex flex-col items-center gap-1 hover:bg-on-surface/10 rounded-xl transition-all group hover:shadow-[0_0_20px_rgba(255,255,255,0.6)]">
+<span class="material-symbols-outlined group-hover:text-primary transition-colors" data-icon="photo_library">photo_library</span>
+</button>
+</div>
+<!-- Spacer -->
+<div class="h-px w-8 bg-glass-border/30 my-2"></div>
+<!-- Footer Actions -->
+<div class="flex flex-col items-center gap-4 w-full px-2">
+<button class="text-on-surface-variant/70 p-3 flex flex-col items-center gap-1 hover:bg-on-surface/10 rounded-xl transition-all group hover:shadow-[0_0_20px_rgba(255,255,255,0.6)]">
+<span class="material-symbols-outlined group-hover:text-primary transition-colors" data-icon="settings">settings</span>
+</button>
+<!-- User Avatar (Conceptual substitution since no specific image is provided for avatar) -->
+<button class="w-10 h-10 rounded-full overflow-hidden border border-glass-border/30 hover:scale-105 transition-transform mt-2 shadow-[0_0_20px_rgba(255,255,255,0.6)]">
+<div class="w-full h-full bg-surface-variant flex items-center justify-center text-on-surface font-label-sm text-label-sm">
+                    ME
+                </div>
+</button>
+</div>
+</aside>
+<!-- Main Canvas Content -->
+<main class="w-full max-w-container-max mx-auto px-margin-mobile md:pl-[140px] md:pr-margin-desktop pt-8 pb-20 md:pb-8 flex flex-col gap-10">
+<!-- Header Section -->
+<section class="flex flex-col gap-2 md:pb-4">
+<h1 class="font-headline-lg-mobile md:font-headline-lg text-headline-lg-mobile md:text-headline-lg text-primary">Wochenplanung</h1>
+<p class="font-body-lg text-body-lg text-on-surface-variant max-w-2xl">
+                Organisiere deine Aufgaben in fließenden, transparenten Spaces. Fokus auf das Wesentliche.
+            </p>
+</section>
+<!-- Weekly Goals Section -->
+<section class="bg-white/10 backdrop-blur-[64px] rounded-[3rem] p-8 glass-inner-border shadow-[0_0_40px_rgba(255,255,255,0.5)] transition-all duration-500 w-full flex flex-col md:flex-row gap-6 md:items-center justify-between">
+<div class="flex flex-col gap-2">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary text-[24px]" data-icon="target">crisis_alert</span>
+<h2 class="font-headline-md text-headline-md text-primary text-2xl tracking-tight">Wochenziele</h2>
+</div>
+<p class="font-label-md text-label-md text-on-surface-variant">Die 3 wichtigsten Meilensteine für diese Woche.</p>
+</div>
+<div class="flex flex-col md:flex-row gap-4 flex-1 justify-end">
+<div class="bg-white/40 backdrop-blur-md rounded-2xl p-4 glass-inner-border flex items-center gap-3 cursor-pointer hover:bg-white/60 transition-colors">
+<div class="w-5 h-5 rounded-full border border-primary flex items-center justify-center"></div>
+<span class="font-body-md text-on-surface font-medium">Design System finalisieren</span>
+</div>
+<div class="bg-white/40 backdrop-blur-md rounded-2xl p-4 glass-inner-border flex items-center gap-3 cursor-pointer hover:bg-white/60 transition-colors">
+<div class="w-5 h-5 rounded-full border border-primary flex items-center justify-center"></div>
+<span class="font-body-md text-on-surface font-medium">Q3 Report abgeben</span>
+</div>
+<div class="bg-white/40 backdrop-blur-md rounded-2xl p-4 glass-inner-border flex items-center gap-3 cursor-pointer hover:bg-white/60 transition-colors">
+<div class="w-5 h-5 rounded-full bg-primary flex items-center justify-center text-white">
+<span class="material-symbols-outlined text-[14px]">check</span>
+</div>
+<span class="font-body-md text-on-surface font-medium line-through decoration-on-surface/30">Team Kick-off</span>
+</div>
+</div>
+</section>
+<!-- Kanban Board Layout -->
+<section class="grid grid-cols-1 lg:grid-cols-3 gap-gutter items-start">
+<!-- Column 1: Backlog -->
+<div class="flex flex-col gap-6 bg-white/10 backdrop-blur-[64px] rounded-[3rem] p-8 glass-inner-border shadow-[0_0_40px_rgba(255,255,255,0.5)] transition-all duration-500">
+<div class="flex items-center justify-between mb-2"><h2 class="font-headline-md text-headline-md text-primary text-2xl tracking-tight">Backlog</h2><span class="bg-white/20 backdrop-blur-md text-on-surface-variant font-label-sm text-label-sm px-3 py-1 rounded-full border border-white/20">4</span></div>
+<!-- Cards Container -->
+<div class="flex flex-col gap-4">
+<!-- Task Card -->
+<article class="bg-white/80 backdrop-blur-2xl rounded-[2rem] p-6 glass-inner-border shadow-[0_0_20px_rgba(255,255,255,0.6)] hover:-translate-y-1 hover:shadow-[0_0_30px_rgba(255,255,255,0.8)] transition-all duration-500 cursor-pointer flex flex-col gap-4">
+<div class="flex justify-between items-start gap-4">
+<h3 class="font-body-md text-body-md font-semibold text-primary">Q3 Marketing Strategie</h3>
+<button class="text-on-surface-variant hover:text-primary"><span class="material-symbols-outlined text-[20px]" data-icon="more_horiz">more_horiz</span></button>
+</div>
+<p class="font-label-md text-label-md text-on-surface-variant">Recherche und Zusammenfassung der wichtigsten KPIs für das kommende Quartal.</p>
+<div class="flex flex-wrap items-center gap-2 mt-2">
+<span class="bg-surface text-on-surface font-label-sm text-label-sm px-2.5 py-1 rounded-full border border-glass-border">Marketing</span>
+<span class="bg-white text-primary border border-primary/20 font-label-sm text-label-sm px-2.5 py-1 rounded-full flex items-center gap-1 shadow-sm"><span class="material-symbols-outlined text-[14px]">arrow_upward</span> Hoch</span>
+<span class="text-on-surface-variant font-label-sm text-label-sm flex items-center gap-1 ml-auto"><span class="material-symbols-outlined text-[14px]" data-icon="calendar_today">calendar_today</span> 12. Okt</span>
+</div>
+</article>
+<!-- Task Card -->
+<article class="bg-white/80 backdrop-blur-2xl rounded-[2rem] p-6 glass-inner-border shadow-[0_0_20px_rgba(255,255,255,0.6)] hover:-translate-y-1 hover:shadow-[0_0_30px_rgba(255,255,255,0.8)] transition-all duration-500 cursor-pointer flex flex-col gap-4">
+<div class="flex justify-between items-start gap-4">
+<h3 class="font-body-md text-body-md font-semibold text-primary">Design System Update</h3>
+<button class="text-on-surface-variant hover:text-primary"><span class="material-symbols-outlined text-[20px]" data-icon="more_horiz">more_horiz</span></button>
+</div>
+<p class="font-label-md text-label-md text-on-surface-variant">Integration der neuen 'Liquid Glass' Tokens in Figma und Tailwind.</p>
+<div class="flex flex-wrap items-center gap-2 mt-2">
+<span class="bg-surface text-on-surface font-label-sm text-label-sm px-2.5 py-1 rounded-full border border-glass-border">Design</span>
+<span class="bg-surface-variant text-on-surface-variant border border-glass-border font-label-sm text-label-sm px-2.5 py-1 rounded-full flex items-center gap-1"><span class="material-symbols-outlined text-[14px]">horizontal_rule</span> Mittel</span>
+</div>
+</article>
+<button class="w-full py-4 rounded-full border border-transparent hover:border-white/40 bg-white/5 hover:bg-white/20 text-on-surface-variant font-label-md text-label-md transition-all duration-300 flex items-center justify-center gap-2 hover:shadow-[0_0_20px_rgba(255,255,255,0.5)]">
+<span class="material-symbols-outlined" data-icon="add">add</span> Aufgabe hinzufügen
+                    </button>
+</div>
+</div>
+<!-- Column 2: In Arbeit -->
+<div class="flex flex-col gap-6 bg-white/10 backdrop-blur-[64px] rounded-[3rem] p-8 glass-inner-border shadow-[0_0_40px_rgba(255,255,255,0.5)] relative overflow-hidden transition-all duration-500">
+<!-- Subtle Active Highlight Layer -->
+<div class="absolute inset-0 bg-gradient-to-b from-white/20 to-transparent pointer-events-none"></div>
+<div class="flex items-center justify-between mb-2 relative z-10"><h2 class="font-headline-md text-headline-md text-primary text-2xl tracking-tight">In Arbeit</h2><span class="bg-primary text-on-primary font-label-sm text-label-sm px-3 py-1 rounded-full">2</span></div>
+<!-- Cards Container -->
+<div class="flex flex-col gap-4 relative z-10">
+<!-- Task Card Active -->
+<article class="bg-white/80 backdrop-blur-2xl rounded-[2rem] p-6 glass-inner-border shadow-[0_0_20px_rgba(255,255,255,0.6)] hover:-translate-y-1 hover:shadow-[0_0_30px_rgba(255,255,255,0.8)] transition-all duration-500 cursor-pointer flex flex-col gap-4">
+<div class="flex justify-between items-start gap-4">
+<h3 class="font-body-md text-body-md font-semibold text-primary">Landingpage Re-Design</h3>
+<button class="text-on-surface-variant hover:text-primary"><span class="material-symbols-outlined text-[20px]" data-icon="more_horiz">more_horiz</span></button>
+</div>
+<p class="font-label-md text-label-md text-on-surface-variant">Umsetzung der neuen Bento-Grid Strukturen in der Hero-Sektion.</p>
+<!-- Progress -->
+<div class="w-full flex flex-col gap-1 mt-2">
+<div class="flex justify-between font-label-sm text-label-sm text-on-surface-variant">
+<span class="">Fortschritt</span>
+<span class="">65%</span>
+</div>
+<div class="h-2 w-full bg-black/5 rounded-full overflow-hidden backdrop-blur-sm"><div class="h-full bg-primary/80 rounded-full w-[65%] transition-all duration-1000"></div></div>
+</div>
+<div class="flex flex-wrap items-center gap-2 mt-2">
+<span class="bg-surface text-on-surface font-label-sm text-label-sm px-2.5 py-1 rounded-full border border-glass-border">Development</span>
+<span class="bg-white text-primary border border-primary/20 font-label-sm text-label-sm px-2.5 py-1 rounded-full flex items-center gap-1 shadow-sm"><span class="material-symbols-outlined text-[14px]">arrow_upward</span> Hoch</span>
+<span class="text-error font-label-sm text-label-sm flex items-center gap-1 ml-auto"><span class="material-symbols-outlined text-[14px]" data-icon="schedule">schedule</span> Heute</span>
+</div>
+</article>
+<!-- Task Card -->
+<article class="bg-white/80 backdrop-blur-2xl rounded-[2rem] p-6 glass-inner-border shadow-[0_0_20px_rgba(255,255,255,0.6)] hover:-translate-y-1 hover:shadow-[0_0_30px_rgba(255,255,255,0.8)] transition-all duration-500 cursor-pointer flex flex-col gap-4">
+<div class="flex justify-between items-start gap-4">
+<h3 class="font-body-md text-body-md font-semibold text-primary">Kundenpräsentation</h3>
+<button class="text-on-surface-variant hover:text-primary"><span class="material-symbols-outlined text-[20px]" data-icon="more_horiz">more_horiz</span></button>
+</div>
+<p class="font-label-md text-label-md text-on-surface-variant">Slides für das Q4 Pitch-Meeting finalisieren.</p>
+<div class="flex flex-wrap items-center gap-2 mt-2">
+<span class="bg-surface text-on-surface font-label-sm text-label-sm px-2.5 py-1 rounded-full border border-glass-border">Sales</span>
+<span class="bg-transparent text-on-surface-variant border border-glass-border font-label-sm text-label-sm px-2.5 py-1 rounded-full flex items-center gap-1"><span class="material-symbols-outlined text-[14px]">arrow_downward</span> Niedrig</span>
+</div>
+</article>
+</div>
+</div>
+<!-- Column 3: Abgeschlossen -->
+<div class="flex flex-col gap-6 bg-white/5 backdrop-blur-[64px] rounded-[3rem] p-8 glass-inner-border shadow-[0_0_40px_rgba(255,255,255,0.5)] transition-all duration-500">
+<div class="flex items-center justify-between mb-2"><h2 class="font-headline-md text-headline-md text-on-surface-variant text-2xl tracking-tight">Abgeschlossen</h2><span class="bg-white/10 text-on-surface-variant font-label-sm text-label-sm px-3 py-1 rounded-full">3</span></div>
+<!-- Cards Container -->
+<div class="flex flex-col gap-4">
+<!-- Task Card Completed -->
+<article class="bg-white/40 backdrop-blur-md rounded-2xl p-5 glass-inner-border shadow-[0_0_15px_rgba(255,255,255,0.5)] flex flex-col gap-3">
+<div class="flex justify-between items-start gap-4">
+<h3 class="font-body-md text-body-md font-semibold text-on-surface-variant line-through decoration-on-surface-variant/30">Team Onboarding</h3>
+<span class="material-symbols-outlined text-primary text-[20px]" data-icon="check_circle">check_circle</span>
+</div>
+</article>
+<article class="bg-white/40 backdrop-blur-md rounded-2xl p-5 glass-inner-border shadow-[0_0_15px_rgba(255,255,255,0.5)] flex flex-col gap-3">
+<div class="flex justify-between items-start gap-4">
+<h3 class="font-body-md text-body-md font-semibold text-on-surface-variant line-through decoration-on-surface-variant/30">Server Migration</h3>
+<span class="material-symbols-outlined text-primary text-[20px]" data-icon="check_circle">check_circle</span>
+</div>
+</article>
+</div>
+</div>
+</section>
+</main>
+<!-- Floating Quick Notes -->
+<aside class="fixed bottom-6 right-6 md:bottom-10 md:right-10 w-80 bg-white/30 backdrop-blur-[64px] rounded-[2rem] p-6 glass-inner-border shadow-[0_20px_60px_rgba(0,0,0,0.1),0_0_40px_rgba(255,255,255,0.5)] z-40 hidden lg:flex flex-col gap-4 hover:shadow-[0_20px_60px_rgba(0,0,0,0.1),0_0_60px_rgba(255,255,255,0.7)] transition-shadow duration-500">
+<div class="flex justify-between items-center">
+<div class="flex items-center gap-2 text-primary">
+<span class="material-symbols-outlined text-[20px]">edit_note</span>
+<h3 class="font-headline-md text-xl tracking-tight">Schnellnotizen</h3>
+</div>
+<button class="text-on-surface-variant hover:text-primary transition-colors bg-white/20 rounded-full p-1"><span class="material-symbols-outlined text-[18px]">open_in_full</span></button>
+</div>
+<textarea class="w-full bg-white/50 backdrop-blur-md rounded-xl p-4 glass-inner-border resize-none text-body-md font-body-md text-on-surface focus:outline-none focus:ring-2 focus:ring-primary/20 placeholder-on-surface-variant/50" placeholder="Gedanken, Links oder Ideen festhalten..." rows="5"></textarea>
+<div class="flex justify-end">
+<button class="px-4 py-2 bg-primary text-on-primary rounded-xl font-label-md shadow-[0_0_15px_rgba(0,0,0,0.2)] hover:scale-105 transition-transform duration-300">Speichern</button>
+</div>
+</aside>
+</body></html>
