@@ -7,6 +7,10 @@
 <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
 <link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&display=swap" rel="stylesheet"/>
 <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script type="module">
+  import * as WebLLM from 'https://esm.run/@mlc-ai/web-llm';
+  window._WebLLM = WebLLM;
+</script>
 <script id="tailwind-config">
 tailwind.config = {
   darkMode: "class",
@@ -550,18 +554,54 @@ article:hover .drag-handle { opacity: 1; }
       <input id="settings-name" type="text" placeholder="z.B. Julian" class="bg-white/50 backdrop-blur-md rounded-xl px-4 py-3 glass-inner-border text-body-md font-body-md text-on-surface focus:outline-none focus:ring-2 focus:ring-primary/20 placeholder-on-surface-variant/50"/>
     </div>
 
-    <!-- API Key -->
+    <!-- KI Provider -->
     <div class="flex flex-col gap-2">
-      <label class="font-label-md text-label-md text-on-surface-variant">Google Gemini API-Schlüssel</label>
-      <div class="relative">
-        <input id="settings-apikey" type="password" placeholder="AIza..." class="w-full bg-white/50 backdrop-blur-md rounded-xl px-4 py-3 pr-12 glass-inner-border text-body-md font-body-md text-on-surface focus:outline-none focus:ring-2 focus:ring-primary/20 placeholder-on-surface-variant/50"/>
-        <button onclick="App.toggleApiKeyVisibility()" class="absolute right-3 top-1/2 -translate-y-1/2 text-on-surface-variant hover:text-primary">
-          <span class="material-symbols-outlined text-[20px]">visibility</span>
-        </button>
+      <label class="font-label-md text-label-md text-on-surface-variant">KI-Anbieter</label>
+      <select id="settings-provider" onchange="App.onProviderChange(this.value)" class="bg-white/50 backdrop-blur-md rounded-xl px-4 py-3 glass-inner-border text-body-md font-body-md text-on-surface focus:outline-none focus:ring-2 focus:ring-primary/20">
+        <option value="auto">🤖 Automatisch (empfohlen)</option>
+        <option value="chrome">🌐 Chrome Browser-KI (Gemini Nano – kostenlos)</option>
+        <option value="webllm">💻 Lokale KI – WebLLM (offline, ~870MB)</option>
+        <option value="gemini">☁️ Gemini API (API-Schlüssel erforderlich)</option>
+        <option value="offline">✍️ Offline-Modus (Befehle ohne KI)</option>
+      </select>
+
+      <!-- Chrome AI status -->
+      <div id="chrome-ai-status" class="hidden bg-white/30 rounded-xl p-3 glass-inner-border flex items-center gap-2 font-label-sm text-label-sm">
+        <span id="chrome-ai-icon" class="material-symbols-outlined text-[18px]">circle</span>
+        <span id="chrome-ai-msg">Prüfe Chrome Browser-KI...</span>
       </div>
-      <p class="font-label-sm text-label-sm text-on-surface-variant/70">
-        API-Schlüssel von <a href="https://aistudio.google.com/apikey" target="_blank" class="underline hover:text-primary">Google AI Studio</a> (kostenlos mit Pro Abo)
-      </p>
+
+      <!-- WebLLM section -->
+      <div id="webllm-section" class="hidden flex-col gap-2">
+        <div class="bg-white/30 rounded-xl p-3 glass-inner-border flex items-center justify-between">
+          <div class="flex items-center gap-2">
+            <span id="webllm-status-icon" class="material-symbols-outlined text-[18px] text-on-surface-variant">download</span>
+            <span id="webllm-status-label" class="font-label-sm text-label-sm text-on-surface-variant">Modell nicht geladen</span>
+          </div>
+          <button onclick="App.loadWebLLM()" id="webllm-load-btn" class="px-3 py-1.5 bg-primary text-on-primary rounded-lg font-label-sm text-label-sm hover:opacity-80 transition-opacity">
+            Laden
+          </button>
+        </div>
+        <p class="font-label-sm text-label-sm text-on-surface-variant/60">Erfordert Chrome/Edge mit WebGPU. Einmaliger Download (~870MB).</p>
+      </div>
+
+      <!-- Gemini API Key section -->
+      <div id="gemini-key-section" class="hidden flex-col gap-2">
+        <div class="relative">
+          <input id="settings-apikey" type="password" placeholder="AIza..." class="w-full bg-white/50 backdrop-blur-md rounded-xl px-4 py-3 pr-12 glass-inner-border text-body-md font-body-md text-on-surface focus:outline-none focus:ring-2 focus:ring-primary/20 placeholder-on-surface-variant/50"/>
+          <button onclick="App.toggleApiKeyVisibility()" class="absolute right-3 top-1/2 -translate-y-1/2 text-on-surface-variant hover:text-primary">
+            <span class="material-symbols-outlined text-[20px]">visibility</span>
+          </button>
+        </div>
+        <p class="font-label-sm text-label-sm text-on-surface-variant/70">
+          API-Schlüssel von <a href="https://aistudio.google.com/apikey" target="_blank" class="underline hover:text-primary">Google AI Studio</a>
+        </p>
+      </div>
+
+      <!-- Offline mode info -->
+      <div id="offline-info" class="hidden bg-white/30 rounded-xl p-3 glass-inner-border font-label-sm text-label-sm text-on-surface-variant">
+        ✍️ Sprachbefehle funktionieren lokal (To-Dos hinzufügen, Aufgaben verwalten, Zusammenfassungen) – ohne Internetverbindung.
+      </div>
     </div>
 
     <!-- Voice Selection -->
@@ -640,20 +680,41 @@ article:hover .drag-handle { opacity: 1; }
 <!-- Toast Notification -->
 <div id="toast"></div>
 
+<!-- WebLLM Loading Overlay -->
+<div id="webllm-overlay" class="modal-backdrop hidden">
+  <div class="bg-white/20 backdrop-blur-[80px] rounded-[3rem] glass-inner-border shadow-[0_40px_100px_rgba(0,0,0,0.15)] w-full max-w-md flex flex-col items-center gap-6 p-10">
+    <div class="w-16 h-16 rounded-2xl bg-primary flex items-center justify-center">
+      <span class="material-symbols-outlined text-white text-[32px]">smart_toy</span>
+    </div>
+    <div class="text-center">
+      <h2 class="font-headline-md text-primary text-2xl tracking-tight">KI-Modell wird geladen</h2>
+      <p class="font-body-md text-on-surface-variant mt-2">Das lokale Sprachmodell wird heruntergeladen und installiert. Dies geschieht nur einmalig.</p>
+    </div>
+    <div class="w-full flex flex-col gap-2">
+      <div class="flex justify-between font-label-sm text-label-sm text-on-surface-variant">
+        <span id="webllm-status-text">Initialisiere...</span>
+        <span id="webllm-progress-pct">0%</span>
+      </div>
+      <div class="h-2 w-full bg-black/10 rounded-full overflow-hidden">
+        <div id="webllm-progress-bar" class="h-full bg-primary rounded-full transition-all duration-300" style="width:0%"></div>
+      </div>
+      <p id="webllm-detail-text" class="font-label-sm text-label-sm text-on-surface-variant/60 text-center"></p>
+    </div>
+    <p class="font-label-sm text-label-sm text-on-surface-variant/50 text-center">Modell: Llama 3.2 · ~870MB · WebGPU</p>
+  </div>
+</div>
+
 <!-- ═══════════════════ APPLICATION LOGIC ═══════════════════ -->
 <script>
 const App = (() => {
   // ─── STATE ───────────────────────────────────────────────
   let state = {
     apiKey: '',
+    aiProvider: 'auto',
     userName: 'Julian',
     greetingName: 'Sie',
-    voiceName: 'Aoede',
-    tasks: {
-      backlog: [],
-      inProgress: [],
-      done: []
-    },
+    voiceName: 'browser',
+    tasks: { backlog: [], inProgress: [], done: [] },
     weeklyGoals: [],
     todos: [],
     chatHistory: [],
@@ -670,12 +731,16 @@ const App = (() => {
     voiceConversationActive: false,
     recognition: null,
     audioCtx: null,
+    webLLMEngine: null,
+    webLLMLoaded: false,
+    chromeAIAvailable: null,
   };
 
   // ─── PERSISTENCE ─────────────────────────────────────────
   function save() {
     localStorage.setItem('gm_state', JSON.stringify({
       apiKey: state.apiKey,
+      aiProvider: state.aiProvider,
       userName: state.userName,
       greetingName: state.greetingName,
       voiceName: state.voiceName,
@@ -692,6 +757,7 @@ const App = (() => {
     try {
       const saved = JSON.parse(localStorage.getItem('gm_state') || '{}');
       if (saved.apiKey) state.apiKey = saved.apiKey;
+      if (saved.aiProvider) state.aiProvider = saved.aiProvider;
       if (saved.userName) state.userName = saved.userName;
       if (saved.greetingName) state.greetingName = saved.greetingName;
       if (saved.voiceName) state.voiceName = saved.voiceName;
@@ -770,8 +836,31 @@ const App = (() => {
     if (viewId === 'aichat') renderChat();
   }
 
+  // ─── AI ROUTING ──────────────────────────────────────────
+  async function callAI(userMessage, history = []) {
+    const provider = resolveProvider();
+
+    if (provider === 'gemini') return callGeminiAPI(userMessage, history);
+    if (provider === 'chrome') return callChromeAI(userMessage, history);
+    if (provider === 'webllm') return callWebLLMInference(userMessage, history);
+    return callOfflineMode(userMessage);
+  }
+
+  function resolveProvider() {
+    const p = state.aiProvider;
+    if (p === 'gemini') { if (!state.apiKey) return 'offline'; return 'gemini'; }
+    if (p === 'chrome') { return state.chromeAIAvailable ? 'chrome' : 'offline'; }
+    if (p === 'webllm') { return state.webLLMLoaded ? 'webllm' : 'offline'; }
+    if (p === 'offline') return 'offline';
+    // auto: try chrome → webllm → gemini → offline
+    if (state.chromeAIAvailable) return 'chrome';
+    if (state.webLLMLoaded) return 'webllm';
+    if (state.apiKey) return 'gemini';
+    return 'offline';
+  }
+
   // ─── GEMINI API ──────────────────────────────────────────
-  async function callGemini(userMessage, history = []) {
+  async function callGeminiAPI(userMessage, history = []) {
     if (!state.apiKey) throw new Error('NO_API_KEY');
 
     const systemPrompt = buildSystemPrompt();
@@ -795,6 +884,204 @@ const App = (() => {
     const data = await res.json();
     if (data.error) throw new Error(data.error.message);
     return data.candidates?.[0]?.content?.parts?.[0]?.text || '';
+  }
+
+  // ─── CHROME BUILT-IN AI (Gemini Nano) ────────────────────
+  async function detectChromeAI() {
+    try {
+      if (!window.ai?.languageModel) { state.chromeAIAvailable = false; return false; }
+      const cap = await window.ai.languageModel.capabilities();
+      state.chromeAIAvailable = cap.available !== 'no';
+      return state.chromeAIAvailable;
+    } catch(e) {
+      state.chromeAIAvailable = false;
+      return false;
+    }
+  }
+
+  async function callChromeAI(userMessage, history = []) {
+    if (!state.chromeAIAvailable) throw new Error('Chrome AI nicht verfügbar');
+    const session = await window.ai.languageModel.create({
+      systemPrompt: buildSystemPrompt()
+    });
+    const histText = history.slice(-6).map(m =>
+      `${m.role === 'user' ? 'Nutzer' : 'Assistent'}: ${m.parts?.[0]?.text || ''}`
+    ).join('\n');
+    const prompt = histText ? histText + '\nNutzer: ' + userMessage : userMessage;
+    const response = await session.prompt(prompt);
+    session.destroy();
+    return response;
+  }
+
+  // ─── WEBLLM (lokales Modell im Browser) ──────────────────
+  const WEBLLM_MODEL = 'Llama-3.2-1B-Instruct-q4f32_1-MLC';
+
+  async function loadWebLLM() {
+    const WebLLM = window._WebLLM;
+    if (!WebLLM) { toast('WebLLM noch nicht geladen, bitte kurz warten...'); return; }
+    if (state.webLLMLoaded) { toast('KI-Modell bereits geladen ✓'); return; }
+
+    document.getElementById('webllm-overlay').classList.remove('hidden');
+
+    try {
+      state.webLLMEngine = await WebLLM.CreateMLCEngine(
+        WEBLLM_MODEL,
+        {
+          initProgressCallback: (report) => {
+            const pct = Math.round((report.progress || 0) * 100);
+            document.getElementById('webllm-progress-bar').style.width = pct + '%';
+            document.getElementById('webllm-progress-pct').textContent = pct + '%';
+            document.getElementById('webllm-status-text').textContent = report.text || 'Lade...';
+            document.getElementById('webllm-detail-text').textContent =
+              report.timeElapsed ? `${Math.round(report.timeElapsed)}s vergangen` : '';
+          }
+        }
+      );
+      state.webLLMLoaded = true;
+      document.getElementById('webllm-overlay').classList.add('hidden');
+      document.getElementById('webllm-status-label').textContent = '✓ Modell geladen – bereit';
+      document.getElementById('webllm-status-icon').textContent = 'check_circle';
+      document.getElementById('webllm-status-icon').style.color = 'green';
+      document.getElementById('webllm-load-btn').textContent = 'Geladen ✓';
+      document.getElementById('webllm-load-btn').disabled = true;
+      toast('✓ KI-Modell erfolgreich geladen!');
+    } catch(e) {
+      document.getElementById('webllm-overlay').classList.add('hidden');
+      toast('WebLLM Fehler: ' + e.message + '. Bitte Chrome/Edge mit WebGPU nutzen.');
+    }
+  }
+
+  async function callWebLLMInference(userMessage, history = []) {
+    if (!state.webLLMEngine || !state.webLLMLoaded) throw new Error('WebLLM nicht geladen');
+    const sys = buildSystemPrompt();
+    const messages = [
+      { role: 'system', content: sys },
+      ...history.slice(-10).map(m => ({
+        role: m.role === 'model' ? 'assistant' : 'user',
+        content: m.parts?.[0]?.text || ''
+      })),
+      { role: 'user', content: userMessage }
+    ];
+    const reply = await state.webLLMEngine.chat.completions.create({
+      messages,
+      temperature: 0.7,
+      max_tokens: 512,
+    });
+    return reply.choices?.[0]?.message?.content || '';
+  }
+
+  // ─── OFFLINE / SMART TEMPLATE MODE ───────────────────────
+  function callOfflineMode(userMessage) {
+    const msg = userMessage.toLowerCase().trim();
+    const today = new Date().toLocaleDateString('de-DE', { weekday: 'long', day: 'numeric', month: 'long' });
+    const allTasks = [...state.tasks.backlog, ...state.tasks.inProgress];
+    const openTodos = state.todos.filter(t => !t.done);
+    const name = state.greetingName;
+
+    // Greetings
+    if (/^(hallo|hi|hey|guten morgen|guten tag|moin|servus|grüezi)/.test(msg)) {
+      const taskCount = allTasks.length;
+      const todoCount = openTodos.length;
+      return `Guten Tag, ${name}! Schön, dass Sie da sind. Heute ist ${today}.
+
+Sie haben aktuell **${taskCount} aktive Aufgaben** und **${todoCount} offene To-Dos**.
+${openTodos.length > 0 ? `Ihre offenen Punkte: ${openTodos.slice(0,3).map(t=>t.text).join(', ')}${openTodos.length > 3 ? ' …' : ''}.` : ''}
+
+Was planen Sie heute? Ich kann Aufgaben hinzufügen, To-Dos eintragen oder eine Zusammenfassung erstellen.`;
+    }
+
+    // Extract todo from "schreib X in meine todos / füge X hinzu"
+    const todoPatterns = [
+      /(?:schreib|trag|füge?|notiere?|erstell)\s+(?:bitte\s+)?["']?(.+?)["']?\s+(?:in|auf)\s+(?:meine[nr]?\s+)?to.?dos?/i,
+      /(?:schreib|trag|füge?|notiere?|erstell)\s+(?:bitte\s+)?["']?(.+?)["']?\s+(?:als|als\s+)?(?:aufgabe|todo|task)/i,
+      /(?:to.?do|aufgabe|task):\s*["']?(.+?)["']?$/i,
+      /(?:erinnere?\s+mich\s+(?:daran\s+)?(?:an\s+)?(?:bitte\s+)?)(.+?)$/i,
+    ];
+    for (const pat of todoPatterns) {
+      const m = msg.match(pat);
+      if (m) {
+        const text = m[1].trim().replace(/^(bitte|an|dass|zu)\s+/i, '');
+        if (text.length > 2) {
+          addTodoItem(text);
+          return `[AKTION: add_todo | text: "${text}"]
+
+Ich habe "${text}" in Ihre To-Do-Liste eingetragen. ✓
+
+Sie haben jetzt ${state.todos.filter(t=>!t.done).length} offene To-Dos.`;
+        }
+      }
+    }
+
+    // Add task / aufgabe
+    const taskPatterns = [
+      /(?:füge?|erstell|leg\s+an)\s+(?:bitte\s+)?(?:eine?\s+)?aufgabe?\s+["']?(.+?)["']?\s+(?:zum\s+)?(?:backlog|in\s+arbeit|erledigt)?/i,
+      /neue?\s+aufgabe?:\s*["']?(.+?)["']?/i,
+    ];
+    for (const pat of taskPatterns) {
+      const m = msg.match(pat);
+      if (m) {
+        const title = m[1].trim();
+        if (title.length > 2) {
+          const col = /in\s+arbeit/i.test(msg) ? 'inProgress' : 'backlog';
+          state.tasks[col].push({ id: 'task_' + Date.now(), title, desc: '', tag: null, priority: 'mittel', date: null });
+          save(); renderKanban();
+          return `[AKTION: add_task | title: "${title}" | column: "${col}"]
+
+Aufgabe **"${title}"** wurde zum ${col === 'inProgress' ? 'Bereich "In Arbeit"' : 'Backlog'} hinzugefügt. ✓`;
+        }
+      }
+    }
+
+    // Summary / Zusammenfassung
+    if (/zusammenfassung|überblick|status|wie\s+läuft|wie\s+steht|was\s+steht\s+an/.test(msg)) {
+      const done = state.tasks.done.length;
+      const inProgress = state.tasks.inProgress.map(t => `• ${t.title}`).join('\n') || '• Keine';
+      const backlog = state.tasks.backlog.map(t => `• ${t.title}`).join('\n') || '• Keine';
+      const todosOpen = openTodos.map(t => `• ${t.text}`).join('\n') || '• Keine';
+      return `**Ihr aktueller Überblick** (${today}):
+
+**In Arbeit:**
+${inProgress}
+
+**Backlog:**
+${backlog}
+
+**Offene To-Dos:**
+${todosOpen}
+
+**Abgeschlossen:** ${done} Aufgaben ✓
+
+${openTodos.length > 0 ? `Empfehlung: Konzentrieren Sie sich heute auf "${openTodos[0].text}".` : 'Hervorragend – alle To-Dos erledigt!'}`;
+    }
+
+    // Weekly plan request
+    if (/wochenplan|diese\s+woche\s+planen|woche\s+organisieren/.test(msg)) {
+      return `Um einen detaillierten KI-Wochenplan zu erstellen, wechseln Sie bitte zur Ansicht "Wochenplan" und klicken Sie auf **"KI-Wochenplan erstellen"**.
+
+Alternativ kann ich Ihnen helfen, einzelne Aufgaben für bestimmte Tage einzutragen. Sagen Sie z.B. "Füge für Montag die Aufgabe Kundengespräch hinzu".`;
+    }
+
+    // Help
+    if (/hilfe|was\s+kannst\s+du|was\s+kann\s+ich|befehle|kommandos/.test(msg)) {
+      return `**Was ich für Sie tun kann** (Offline-Modus):
+
+• **To-Do hinzufügen:** "Schreib [Aufgabe] in meine To-Dos"
+• **Aufgabe hinzufügen:** "Neue Aufgabe: [Titel]"
+• **Überblick:** "Zeig mir eine Zusammenfassung"
+• **Begrüßung:** Sagen Sie einfach "Hallo"
+
+Für erweiterte KI-Funktionen aktivieren Sie Chrome Browser-KI oder WebLLM in den Einstellungen.`;
+    }
+
+    // Default fallback
+    return `Ich habe Ihre Nachricht erhalten, ${name}.
+
+Im Offline-Modus stehen mir begrenzte Funktionen zur Verfügung. Ich kann:
+• To-Dos hinzufügen ("Schreib X in meine To-Dos")
+• Aufgaben erstellen ("Neue Aufgabe: X")
+• Zusammenfassungen anzeigen ("Überblick")
+
+Für intelligentere Antworten aktivieren Sie bitte Chrome Browser-KI oder WebLLM in den **Einstellungen**.`;
   }
 
   function buildSystemPrompt() {
@@ -1048,7 +1335,7 @@ Notiz: ${state.quickNote || 'keine'}`;
     updateVoiceUI('thinking');
 
     try {
-      const aiText = await callGemini(transcript, state.chatHistory);
+      const aiText = await callAI(transcript, state.chatHistory);
       const actions = parseActions(aiText);
       executeActions(actions);
 
@@ -1140,7 +1427,7 @@ Notiz: ${state.quickNote || 'keine'}`;
     showChatTyping();
 
     try {
-      const response = await callGemini(text, state.chatHistory.slice(0, -1));
+      const response = await callAI(text, state.chatHistory.slice(0, -1));
       const actions = parseActions(response);
       executeActions(actions);
 
@@ -1259,7 +1546,7 @@ Notiz: ${state.quickNote || 'keine'}`;
 
     try {
       const prompt = `Erstellen Sie eine motivierende und strukturierte Tages-Zusammenfassung für ${state.greetingName}. Beschreiben Sie den heutigen Tag in 2-3 Sätzen, nennen Sie die wichtigsten Prioritäten und geben Sie eine positive Motivation. Halten Sie es kurz und prägnant.`;
-      const summary = await callGemini(prompt, []);
+      const summary = await callAI(prompt, []);
       const clean = summary.replace(/\[AKTION:[^\]]+\]/g, '').trim();
       el.innerHTML = `<p class="font-body-md text-on-surface leading-relaxed">${escHtml(clean)}</p>`;
     } catch(e) {
@@ -1284,7 +1571,7 @@ Antworten Sie im exakten JSON-Format:
 {"Montag":["Aufgabe 1","Aufgabe 2","Aufgabe 3"],"Dienstag":["..."],...}
 Nur JSON, kein weiterer Text.`;
 
-      const response = await callGemini(prompt, []);
+      const response = await callAI(prompt, []);
       const jsonMatch = response.match(/\{[\s\S]*\}/);
       if (jsonMatch) {
         state.weeklyPlan = JSON.parse(jsonMatch[0]);
@@ -1626,18 +1913,40 @@ Nur JSON, kein weiterer Text.`;
 
   async function generateTodosFromAI() {
     toast('KI erstellt Aufgabenvorschläge...');
+    const provider = resolveProvider();
+
+    // Offline fallback: generate from existing tasks
+    if (provider === 'offline') {
+      const suggestions = [];
+      state.tasks.backlog.slice(0, 2).forEach(t => suggestions.push(`"${t.title}" vorbereiten`));
+      state.tasks.inProgress.slice(0, 2).forEach(t => suggestions.push(`"${t.title}" fortsetzen`));
+      suggestions.push('E-Mails beantworten');
+      suggestions.push('Tagesplanung überprüfen');
+      if (suggestions.length > 5) suggestions.length = 5;
+      suggestions.forEach(text => addTodoItem(text));
+      renderTodos();
+      toast(`✓ ${suggestions.length} To-Dos aus Projekten generiert`);
+      return;
+    }
+
     try {
       const prompt = 'Erstellen Sie 5 sinnvolle To-Do-Aufgaben für heute basierend auf meinen Projekten. Antworten Sie nur mit einem JSON-Array von Strings: ["Aufgabe 1", "Aufgabe 2", ...]';
-      const response = await callGemini(prompt, []);
+      const response = await callAI(prompt, []);
       const match = response.match(/\[[\s\S]*\]/);
       if (match) {
         const items = JSON.parse(match[0]);
         items.forEach(text => addTodoItem(text));
         renderTodos();
         toast(`✓ ${items.length} To-Dos hinzugefügt`);
+      } else {
+        // Parse line by line if no JSON
+        const lines = response.split('\n').filter(l => l.trim().length > 3).slice(0, 5);
+        lines.forEach(l => addTodoItem(l.replace(/^[\d\.\-\*•]+\s*/, '').trim()));
+        renderTodos();
+        toast(`✓ ${lines.length} To-Dos hinzugefügt`);
       }
     } catch(e) {
-      toast(e.message === 'NO_API_KEY' ? 'API-Schlüssel fehlt' : 'Fehler: ' + e.message);
+      toast('Fehler: ' + e.message);
     }
   }
 
@@ -1659,7 +1968,7 @@ Nur JSON, kein weiterer Text.`;
     toast('KI verarbeitet Notiz...');
     try {
       const prompt = `Analysieren Sie diese Notiz und extrahieren Sie Aufgaben, Ideen und wichtige Punkte. Erstellen Sie eine strukturierte Zusammenfassung:\n\n"${text}"`;
-      const response = await callGemini(prompt, []);
+      const response = await callAI(prompt, []);
       const actions = parseActions(response);
       executeActions(actions);
       const clean = response.replace(/\[AKTION:[^\]]+\]/g, '').trim();
@@ -1677,11 +1986,44 @@ Nur JSON, kein weiterer Text.`;
   }
 
   // ─── SETTINGS ─────────────────────────────────────────────
+  function onProviderChange(val) {
+    document.getElementById('chrome-ai-status').classList.add('hidden');
+    document.getElementById('webllm-section').classList.add('hidden');
+    document.getElementById('gemini-key-section').classList.add('hidden');
+    document.getElementById('offline-info').classList.add('hidden');
+
+    if (val === 'chrome' || val === 'auto') {
+      const el = document.getElementById('chrome-ai-status');
+      el.classList.remove('hidden');
+      detectChromeAI().then(avail => {
+        document.getElementById('chrome-ai-icon').textContent = avail ? 'check_circle' : 'cancel';
+        document.getElementById('chrome-ai-icon').style.color = avail ? 'green' : '#ba1a1a';
+        document.getElementById('chrome-ai-msg').textContent = avail
+          ? '✓ Chrome Browser-KI verfügbar (Gemini Nano)'
+          : '✗ Nicht verfügbar. Benötigt Chrome 127+ mit aktiviertem AI-Flag.';
+      });
+    }
+    if (val === 'webllm') {
+      document.getElementById('webllm-section').classList.remove('hidden');
+      document.getElementById('webllm-section').style.display = 'flex';
+    }
+    if (val === 'gemini') {
+      document.getElementById('gemini-key-section').classList.remove('hidden');
+      document.getElementById('gemini-key-section').style.display = 'flex';
+    }
+    if (val === 'offline') {
+      document.getElementById('offline-info').classList.remove('hidden');
+    }
+  }
+
   function openSettings() {
     document.getElementById('settings-name').value = state.userName;
-    document.getElementById('settings-apikey').value = state.apiKey;
+    const apiKeyEl = document.getElementById('settings-apikey');
+    if (apiKeyEl) apiKeyEl.value = state.apiKey;
     document.getElementById('settings-greeting').value = state.greetingName;
     document.getElementById('settings-voice').value = state.voiceName;
+    document.getElementById('settings-provider').value = state.aiProvider;
+    onProviderChange(state.aiProvider);
     document.getElementById('settings-modal').classList.remove('hidden');
   }
 
@@ -1691,16 +2033,20 @@ Nur JSON, kein weiterer Text.`;
 
   function saveSettings() {
     state.userName = document.getElementById('settings-name').value.trim() || 'Julian';
-    state.apiKey = document.getElementById('settings-apikey').value.trim();
+    const apiKeyEl = document.getElementById('settings-apikey');
+    if (apiKeyEl) state.apiKey = apiKeyEl.value.trim();
     state.greetingName = document.getElementById('settings-greeting').value.trim() || 'Sie';
     state.voiceName = document.getElementById('settings-voice').value;
+    state.aiProvider = document.getElementById('settings-provider').value;
 
     const initials = state.userName.split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2);
     document.getElementById('avatar-display').textContent = initials;
 
     save();
     closeSettings();
-    toast('✓ Einstellungen gespeichert');
+
+    const providerNames = { auto: 'Automatisch', chrome: 'Chrome KI', webllm: 'WebLLM', gemini: 'Gemini API', offline: 'Offline-Modus' };
+    toast(`✓ Einstellungen gespeichert · KI: ${providerNames[state.aiProvider] || state.aiProvider}`);
     renderChat();
   }
 
@@ -1784,16 +2130,20 @@ Nur JSON, kein weiterer Text.`;
     renderWeeklyPlan();
     renderChat();
 
-    // Show setup prompt if no API key
-    if (!state.apiKey) {
-      setTimeout(() => {
-        toast('👋 Willkommen! Bitte API-Schlüssel in den Einstellungen eingeben.', 4000);
-      }, 1500);
-    } else {
-      setTimeout(() => {
-        toast(`Guten Tag, ${state.greetingName}! Bereit für den heutigen Tag.`, 3000);
-      }, 1000);
-    }
+    // Detect Chrome AI in background
+    detectChromeAI();
+
+    // Welcome message based on available AI
+    setTimeout(() => {
+      const provider = resolveProvider();
+      const providerMsg = {
+        chrome: '🌐 Chrome Browser-KI aktiv – kein API-Key nötig!',
+        webllm: '💻 Lokale KI aktiv',
+        gemini: `☁️ Gemini API aktiv`,
+        offline: '✍️ Offline-Modus – Einstellungen öffnen für KI-Optionen'
+      };
+      toast(providerMsg[provider] || `Guten Tag, ${state.greetingName}!`, 3500);
+    }, 1200);
   }
 
   // Public API
@@ -1808,6 +2158,7 @@ Nur JSON, kein weiterer Text.`;
     addTodo, toggleTodo, deleteTodo, setTodoFilter, generateTodosFromAI,
     saveNote, processNoteWithAI,
     openSettings, closeSettings, saveSettings, toggleApiKeyVisibility,
+    onProviderChange, loadWebLLM,
     init
   };
 })();
