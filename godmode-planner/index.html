@@ -637,6 +637,14 @@ article:hover .drag-handle { opacity: 1; }
     <button onclick="App.saveSettings()" class="w-full py-3 bg-primary text-on-primary rounded-xl font-label-md shadow-[0_0_15px_rgba(0,0,0,0.2)] hover:scale-[1.02] transition-transform duration-300">
       Einstellungen speichern
     </button>
+
+    <div class="border-t border-white/20 pt-4">
+      <button onclick="App.resetApp()" class="w-full py-2.5 rounded-xl border border-error/30 text-error font-label-md text-label-md hover:bg-error/10 transition-colors flex items-center justify-center gap-2">
+        <span class="material-symbols-outlined text-[18px]">restart_alt</span>
+        App zurücksetzen (behebt KI-Probleme)
+      </button>
+      <p class="font-label-sm text-label-sm text-on-surface-variant/50 text-center mt-1">Setzt nur KI-Einstellungen zurück, Ihre Aufgaben bleiben erhalten</p>
+    </div>
   </div>
 </div>
 
@@ -2100,6 +2108,17 @@ Nur JSON, kein weiterer Text.`;
     renderChat();
   }
 
+  function resetApp() {
+    // Nur KI-Einstellungen zurücksetzen, Aufgaben/Todos bleiben
+    state.apiKey = '';
+    state.aiProvider = 'auto';
+    state.voiceName = 'browser';
+    state.chatHistory = [];
+    save();
+    closeSettings();
+    toast('✓ KI-Einstellungen zurückgesetzt – Offline-Modus aktiv', 3000);
+  }
+
   function toggleApiKeyVisibility() {
     const input = document.getElementById('settings-apikey');
     const btn = input.nextElementSibling;
@@ -2208,7 +2227,7 @@ Nur JSON, kein weiterer Text.`;
     addTodo, toggleTodo, deleteTodo, setTodoFilter, generateTodosFromAI,
     saveNote, processNoteWithAI,
     openSettings, closeSettings, saveSettings, toggleApiKeyVisibility,
-    onProviderChange, loadWebLLM, sendVoiceText,
+    onProviderChange, loadWebLLM, sendVoiceText, resetApp,
     init
   };
 })();
